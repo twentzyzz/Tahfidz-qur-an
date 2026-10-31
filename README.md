@@ -40,7 +40,7 @@ lib/
 android/                      # Proyek native Android
 web/                          # Bootstrap Flutter Web
 test/                         # Tes model, pencarian, navigasi, responsivitas
-.github/workflows/build-apk.yml
+.github/workflows/blank.yml
 ```
 
 ## Menjalankan di Codex Cloud atau mesin dengan Flutter
@@ -70,7 +70,7 @@ Build APK lokal tidak wajib untuk pengguna yang memakai GitHub Actions. Linux de
 
 ## Build APK otomatis dengan GitHub Actions
 
-Workflow: **Build Tahfidz Quran APK**, file `.github/workflows/build-apk.yml`.
+Workflow: **Build Tahfidz Quran APK**, file `.github/workflows/blank.yml`.
 
 Workflow berjalan ketika ada push ke **main**, pull request ke **main**, atau pemicu manual. Runner `ubuntu-latest` menyiapkan Java 17 dan Flutter stable versi yang dipatok, memulihkan cache, menjalankan `flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test`, lalu `flutter build apk --release`.
 
