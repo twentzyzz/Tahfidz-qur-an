@@ -1,108 +1,193 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_colors.dart';
-import '../../widgets/page_layout.dart';
+import '../../app/session.dart';
+import '../../l10n/app_strings.dart';
+import '../../widgets/common.dart';
+import '../../widgets/mini_player.dart';
 import '../surah/surah_list_page.dart';
+import '../surah/surah_detail_page.dart';
 import '../tahfidz/tahfidz_page.dart';
 import '../progress/progress_page.dart';
+import '../prayer/prayer_page.dart';
+import '../settings/settings_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
-  Widget build(BuildContext context) => PageLayout(
-    title: 'Tahfidz Quran',
-    children: [
-      Container(
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: AppColors.emerald,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.auto_stories_rounded,
-              color: Color(0xFFFFD887),
-              size: 40,
-            ),
-            SizedBox(height: 24),
-            Text(
-              'Assalamu’alaikum',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Langkah kecil,\nhafalan bermakna.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Bangun kebiasaan bersama Al-Qur’an, setiap hari.',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 28),
-      Text('Ruang belajar Anda', style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 12),
-      _Destination(
-        icon: Icons.menu_book_rounded,
-        title: 'Daftar Surah',
-        subtitle: 'Temukan surah untuk dipelajari',
-        page: const SurahListPage(),
-      ),
-      _Destination(
-        icon: Icons.repeat_rounded,
-        title: 'Mulai Menghafal',
-        subtitle: 'Siapkan sesi tahfidz Anda',
-        page: const TahfidzPage(),
-      ),
-      _Destination(
-        icon: Icons.insights_rounded,
-        title: 'Progres Hafalan',
-        subtitle: 'Ruang untuk perjalanan hafalan Anda',
-        page: const ProgressPage(),
-      ),
-      const SizedBox(height: 20),
-      const Text(
-        'Tahap awal • Data ayat dan audio belum terhubung.',
-        textAlign: TextAlign.center,
-      ),
-    ],
-  );
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _Destination extends StatelessWidget {
-  const _Destination({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.page,
-  });
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget page;
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  int index = 0;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => reschedule());
+  }
+
+  void reschedule() {
+    if (mounted) perform(context, () => Session.of(context).prayer.schedule());
+  }
 
   @override
-  Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.only(bottom: 12),
-    child: ListTile(
-      contentPadding: const EdgeInsets.all(16),
-      leading: Icon(icon, color: AppColors.emerald),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () =>
-          Navigator.of(context)
-              .push(MaterialPageRoute<void>(builder: (_) => page)),
-    ),
-  );
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) reschedule();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext c) {
+    final s = Session.of(c);
+    final last = s.store.map('last');
+    final labels = [
+      c.t('Beranda', 'Home'),
+      c.t("Al-Qur’an", 'Quran'),
+      '30 Juz',
+      c.t('Hafalan', 'Memorize'),
+      c.t('Progres', 'Progress'),
+    ];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(index == 0 ? 'Tahfidz Quran' : labels[index]),
+        actions: [
+          IconButton(
+            tooltip: c.t('Ibadah 5 Waktu', 'Daily prayers'),
+            onPressed: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(builder: (_) => const PrayerPage()),
+            ),
+            icon: const Icon(Icons.mosque),
+          ),
+          IconButton(
+            tooltip: c.t('Pengaturan', 'Settings'),
+            onPressed: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+            ),
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: IndexedStack(
+        index: index,
+        children: [
+          padded([
+            Card(
+              color: Theme.of(c).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset('assets/branding/logo.png', height: 70),
+                    const SizedBox(height: 16),
+                    Text(
+                      c.t('Assalamu’alaikum', 'Assalamu alaikum'),
+                      style: Theme.of(c).textTheme.headlineSmall,
+                    ),
+                    Text(
+                      c.t(
+                        'Langkah kecil, hafalan bermakna.',
+                        'Small steps, meaningful memorization.',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            FilledButton(
+              onPressed: () => setState(() => index = 3),
+              child: Text(c.t('Mulai Menghafal', 'Start memorizing')),
+            ),
+            OutlinedButton(
+              onPressed: () => setState(() => index = 1),
+              child: Text(c.t('Daftar Surah', 'Surah list')),
+            ),
+            if (last.isNotEmpty)
+              FilledButton.tonal(
+                onPressed: () => Navigator.push(
+                  c,
+                  MaterialPageRoute<void>(
+                    builder: (_) => SurahDetailPage(
+                      number: last['surah'] as int,
+                      initialVerse: last['verse'] as int,
+                    ),
+                  ),
+                ),
+                child: Text(c.t('Lanjutkan Bacaan', 'Continue reading')),
+              ),
+            ListTile(
+              title: Text(c.t('Progres Hafalan', 'Memorization progress')),
+              subtitle: Text(
+                '${s.store.map('progress').values.where((v) => v == 'done').length} / 6236',
+              ),
+              onTap: () => setState(() => index = 4),
+            ),
+            const PrayerSummary(),
+            Text(
+              c.t('Bookmark ayat', 'Verse bookmarks'),
+              style: Theme.of(c).textTheme.titleLarge,
+            ),
+            if (s.store.map('bookmarks').isEmpty)
+              Text(
+                c.t(
+                  'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
+                  'No bookmarks yet. Tap the bookmark icon while reading.',
+                ),
+              ),
+            for (final ref in s.store.map('bookmarks').keys)
+              ListTile(
+                title: Text(
+                  '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
+                ),
+                onTap: () => Navigator.push(
+                  c,
+                  MaterialPageRoute<void>(
+                    builder: (_) => SurahDetailPage(
+                      number: int.parse(ref.split(':')[0]),
+                      initialVerse: int.parse(ref.split(':')[1]),
+                    ),
+                  ),
+                ),
+              ),
+          ]),
+          const SurahListPage(),
+          const JuzPage(),
+          const TahfidzPage(),
+          const ProgressPage(),
+        ],
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const MiniPlayer(),
+          NavigationBar(
+            selectedIndex: index,
+            onDestinationSelected: (i) => setState(() => index = i),
+            destinations: [
+              for (var i = 0; i < 5; i++)
+                NavigationDestination(
+                  icon: Icon(
+                    [
+                      Icons.home_outlined,
+                      Icons.menu_book,
+                      Icons.library_books,
+                      Icons.repeat,
+                      Icons.insights,
+                    ][i],
+                  ),
+                  label: labels[i],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
