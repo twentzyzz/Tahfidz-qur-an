@@ -88,7 +88,8 @@ class _PrayerSummaryState extends State<PrayerSummary> {
         if (snapshot.hasError) {
           return failure(c, () => setState(() => future = load(city, now)));
         }
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
         final days = snapshot.data!, day = days.first;

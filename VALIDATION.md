@@ -6,7 +6,7 @@ Tanggal: 1 November 2026. Proyek melanjutkan branch main setelah PR tahap pertam
 
 - `flutter pub get --enforce-lockfile`: lulus.
 - `flutter analyze`: bersih, tidak ada issue.
-- `flutter test`: **12 tes lulus**. Cakupan: seluruh 114 surah/6.236 ayat dan enam URL qari per ayat; 30 juz tanpa ayat hilang/duplikat; urutan pengulangan rentang; kontrol audio menggunakan fake engine; bookmark/progres/pengaturan setelah reload penyimpanan; checklist tanggal baru; WIB/WITA/WIT dan batas tengah malam; validasi kota/tanggal API serta cache ketika offline; penjadwalan/pembatalan notifikasi melalui platform channel Android yang dimock; navigasi pembaca, teks Arab, bookmark, progres, bahasa/tema, sembunyikan Arab, dan pilihan qari.
+- `flutter test`: **13 tes lulus**. Cakupan: seluruh 114 surah/6.236 ayat dan enam URL qari per ayat; 30 juz tanpa ayat hilang/duplikat; urutan pengulangan rentang; kontrol audio menggunakan fake engine; bookmark/progres/pengaturan setelah reload penyimpanan; checklist tanggal baru; WIB/WITA/WIT dan batas tengah malam; validasi kota/tanggal API serta cache ketika offline; penjadwalan/pembatalan notifikasi melalui platform channel Android yang dimock; navigasi pembaca, teks Arab, bookmark, progres, bahasa/tema, sembunyikan Arab, dan pilihan qari.
 - `flutter build web`: lulus. Build Web tidak membuktikan notifikasi/GPS native bekerja pada HP.
 - Data Quran: semua 114 jumlah ayat EQuran.id dicocokkan dengan metadata AlQuran Cloud. Batas 30 juz mencakup seluruh 6.236 ayat tepat sekali dalam urutan Quran.
 - Audio nyata: 18 sampel HTTP dari enam qari pada surah 1, 55, dan 114 berhasil diterima dengan tipe konten audio. Semua 37.416 URL tidak diunduh/didengarkan satu per satu. Lihat provenance.
