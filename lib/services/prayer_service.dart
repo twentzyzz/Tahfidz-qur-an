@@ -84,7 +84,7 @@ class PrayerService {
       }
       final raw = jsonDecode(response.body) as Map;
       if (raw['status'] != true ||
-          '${raw['data']['id']}' != city ||
+          int.tryParse('${raw['data']['id']}') != int.tryParse(city) ||
           raw['data']['jadwal']['date'] != key) {
         throw const FormatException('Schedule mismatch');
       }

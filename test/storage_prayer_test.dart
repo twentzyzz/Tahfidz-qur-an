@@ -95,4 +95,32 @@ void main() {
       );
     },
   );
+  test(
+    'Prayer response accepts numeric city ID when catalog uses a leading zero',
+    () async {
+      final s = AppStore(await SharedPreferences.getInstance());
+      final service = PrayerService(
+        s,
+        client: MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'status': true,
+              'data': {
+                'id': 101,
+                'jadwal': {
+                  'date': '2026-11-01',
+                  for (final k in prayerKeys) k: '12:00',
+                },
+              },
+            }),
+            200,
+          ),
+        ),
+      );
+      final day = await service.day('0101', DateTime(2026, 11, 1));
+      expect(day.city, '0101');
+      expect(day.cached, false);
+      expect(cityZone(day.city), 'Asia/Jakarta');
+    },
+  );
 }
