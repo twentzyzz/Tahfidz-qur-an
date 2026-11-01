@@ -1,82 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tahfidz_quran/app/app.dart';
-import 'package:tahfidz_quran/models/surah.dart';
+
+Future<void> boot(WidgetTester t) async {
+  rootBundle.clear();
+  SharedPreferences.setMockInitialValues({});
+  await t.pumpWidget(const TahfidzApp());
+  for (
+    var i = 0;
+    i < 30 && find.byType(NavigationBar).evaluate().isEmpty;
+    i++
+  ) {
+    await t.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await t.pump(const Duration(milliseconds: 50));
+  }
+  expect(find.byType(NavigationBar), findsOneWidget);
+  await t.pumpAndSettle();
+}
 
 void main() {
-  testWidgets('Search, open surah, prepare tahfidz, and navigate back', (
-    tester,
+  testWidgets(
+    'Bottom navigation, search, real verse reader, bookmark and progress',
+    (t) async {
+      await boot(t);
+      await t.tap(find.text('Daftar Surah'));
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).first, 'Al-Fatihah');
+      await t.pumpAndSettle();
+      await t.tap(find.widgetWithText(ListTile, 'Al-Fatihah'));
+      await t.pumpAndSettle();
+      await t.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await t.pumpAndSettle();
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is SelectableText && (w.data ?? '').contains('بِسْمِ'),
+        ),
+        findsOneWidget,
+      );
+      await t.scrollUntilVisible(
+        find.byTooltip('Bookmark'),
+        150,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await t.tap(find.byTooltip('Bookmark'));
+      await t.pumpAndSettle();
+      await t.scrollUntilVisible(
+        find.text('Sudah hafal'),
+        150,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await t.tap(find.text('Sudah hafal'));
+      await t.pumpAndSettle();
+      await t.tap(find.byType(BackButton));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Progres').last);
+      await t.pumpAndSettle();
+      expect(find.text('1 / 6236 ayat sudah hafal'), findsOneWidget);
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(const SizedBox());
+    },
+  );
+  testWidgets('Language and dark theme controls persist on a narrow screen', (
+    t,
   ) async {
-    await tester.pumpWidget(const TahfidzApp());
-    await tester.tap(find.text('Daftar Surah'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'mulk');
-    await tester.pumpAndSettle();
-    expect(find.text('Al-Mulk'), findsOneWidget);
-    expect(find.text('Al-Baqarah'), findsNothing);
-    await tester.tap(find.text('Al-Mulk'));
-    await tester.pumpAndSettle();
-    expect(find.text('Ayat belum tersedia'), findsOneWidget);
+    t.view.physicalSize = const Size(390, 844);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.resetPhysicalSize);
+    addTearDown(t.view.resetDevicePixelRatio);
+    await boot(t);
+    await t.tap(find.byTooltip('Pengaturan'));
+    await t.pumpAndSettle();
+    await t.tap(find.byType(DropdownButtonFormField<String>));
+    await t.pumpAndSettle();
+    await t.tap(find.text('English').last);
+    await t.pumpAndSettle();
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Dark theme'), findsOneWidget);
+    await t.tap(find.byType(SwitchListTile).first);
+    await t.pumpAndSettle();
     expect(
-      tester
-          .widget<IconButton>(
-            find.byWidgetPredicate(
-              (widget) =>
-                  widget is IconButton &&
-                  widget.tooltip == 'Audio belum tersedia',
-            ),
-          )
-          .onPressed,
-      isNull,
+      Theme.of(t.element(find.text('Settings'))).brightness,
+      Brightness.dark,
     );
-    await tester.tap(find.text('Siapkan hafalan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Pilihan Anda: Al-Mulk • 30 ayat'), findsOneWidget);
-    expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-      isNull,
+    expect(t.takeException(), isNull);
+    await t.pumpWidget(const SizedBox());
+  });
+  testWidgets('Tahfidz hides Arabic and selecting qari persists', (t) async {
+    await boot(t);
+    await t.tap(find.text('Mulai Menghafal'));
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextField).first, 'Al-Fatihah');
+    await t.pumpAndSettle();
+    await t.tap(find.widgetWithText(ListTile, 'Al-Fatihah'));
+    await t.pumpAndSettle();
+    await t.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await t.pumpAndSettle();
+    final arabic = find.byWidgetPredicate(
+      (w) => w is SelectableText && (w.data ?? '').contains('بِسْمِ'),
     );
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'tidak-ada');
-    await tester.pumpAndSettle();
-    expect(find.text('Surah tidak ditemukan'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Progres Hafalan'), 150);
-    await tester.tap(find.text('Progres Hafalan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Belum ada progres tersimpan'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Tahfidz selection works from home on a small screen', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(360, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const TahfidzApp());
-    await tester.scrollUntilVisible(find.text('Mulai Menghafal'), 150);
-    await tester.tap(find.text('Mulai Menghafal'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<Surah>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Al-Fatihah').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Pilihan Anda: Al-Fatihah • 7 ayat'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Home fits a large text scale', (tester) async {
-    tester.platformDispatcher.textScaleFactorTestValue = 2;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await tester.pumpWidget(const TahfidzApp());
-    await tester.pumpAndSettle();
-    expect(find.text('Tahfidz Quran'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    expect(arabic, findsOneWidget);
+    await t.tap(find.byTooltip('Sembunyikan / tampilkan Arab'));
+    await t.pumpAndSettle();
+    expect(arabic, findsNothing);
+    await t.tap(find.byTooltip('Sembunyikan / tampilkan Arab'));
+    await t.pumpAndSettle();
+    expect(arabic, findsOneWidget);
+    await t.tap(find.byType(DropdownButton<String>));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Abdurrahman As-Sudais').last);
+    await t.pumpAndSettle();
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('user.v2'), contains('"qari":"03"'));
+    expect(t.takeException(), isNull);
+    await t.pumpWidget(const SizedBox());
   });
 }

@@ -1,24 +1,22 @@
-# Validasi tahap pertama
+# Validasi versi 1.1.0+2
 
-Tanggal laporan: 1 November 2026 (Asia/Bangkok).
+Tanggal: 1 November 2026. Proyek melanjutkan branch main setelah PR tahap pertama digabungkan; identitas aplikasi dan workflow `blank.yml` dipertahankan.
 
-## Lingkungan dan hasil aktual
+## Hasil yang dijalankan
 
-- Repository awal hanya berisi `README.md`. Pemeriksaan ulang branch `main` menemukan tambahan `.github/workflows/blank.yml`; workflow tersebut dipertahankan sebagai satu-satunya workflow APK, sementara seluruh struktur Flutter ditambahkan.
-- Flutter dipasang dari branch stable repositori resmi: **3.47.9**, Dart **3.13.7**.
-- `flutter pub get --enforce-lockfile`: **lulus**; lockfile disertakan di Git.
-- `flutter analyze`: **lulus**, tidak ada issue.
-- `flutter test`: **lulus, 5 tes**. Mencakup pencarian nama/nomor, decoding model API, navigasi beranda → daftar → detail → tahfidz dan kembali, empty state hasil pencarian/progres, pemilihan surah di layar 360 × 800, serta skala teks besar.
-- `flutter build web`: **lulus**, menghasilkan `build/web`. Ini validasi kompilasi Web; belum ada pengujian interaktif di Chrome karena browser tidak tersedia.
-- Workflow YAML berhasil diparse dan diperiksa untuk trigger, urutan pub get/analyze/test/build, nama artifact, serta path APK. Versi major checkout, setup-java, dan upload-artifact yang dipakai telah dikonfirmasi tersedia di repositori resmi masing-masing.
-- `flutter build apk --release`: **terblokir**, exit 1: `No Android SDK found`. Java tersedia, tetapi Android SDK belum terpasang di cloud ini. Tidak ada APK lokal yang berhasil dibuat.
-- GitHub Actions pada [PR #1](https://github.com/twentzyzz/Tahfidz-qur-an/pull/1): **lulus**. [Run 41248273643](https://github.com/twentzyzz/Tahfidz-qur-an/actions/runs/41248273643) memvalidasi commit `e8df1d427e3eb3611666c39dd870bb14c9702801`; pub get, analyze, test, build APK release, dan upload artifact semuanya berhasil. Durasi job 4 menit 40 detik.
-- Artifact **Tahfidz-Quran-APK** terverifikasi tersedia (ID `13060487177`, ukuran arsip 22.719.279 byte). APK tersedia melalui halaman run tersebut; pengujian pemasangan pada HP Android belum dilakukan.
+- `flutter pub get --enforce-lockfile`: lulus.
+- `flutter analyze`: bersih, tidak ada issue.
+- `flutter test`: **11 tes lulus**. Cakupan: seluruh 114 surah/6.236 ayat dan enam URL qari per ayat; 30 juz tanpa ayat hilang/duplikat; urutan pengulangan rentang; kontrol audio menggunakan fake engine; bookmark/progres/pengaturan setelah reload penyimpanan; checklist tanggal baru; WIB/WITA/WIT dan batas tengah malam; validasi kota/tanggal API serta cache ketika offline; penjadwalan/pembatalan notifikasi melalui platform channel Android yang dimock; navigasi pembaca, teks Arab, bookmark, progres, bahasa/tema, sembunyikan Arab, dan pilihan qari.
+- `flutter build web`: lulus. Build Web tidak membuktikan notifikasi/GPS native bekerja pada HP.
+- Data Quran: semua 114 jumlah ayat EQuran.id dicocokkan dengan metadata AlQuran Cloud. Batas 30 juz mencakup seluruh 6.236 ayat tepat sekali dalam urutan Quran.
+- Audio nyata: 18 sampel HTTP dari enam qari pada surah 1, 55, dan 114 berhasil diterima dengan tipe konten audio. Semua 37.416 URL tidak diunduh/didengarkan satu per satu. Lihat provenance.
+- Jadwal nyata: respons MyQuran untuk Jakarta (WIB), Badung (WITA), dan Asmat (WIT) pada 2026-11-01 berhasil diverifikasi. Percobaan Python sebelumnya menerima 403; permintaan dengan user-agent Dart berhasil.
+- Ikon mushaf diperiksa secara visual. Resource launcher raster/adaptive dan splash Android menunjuk ikon baru; tidak memakai logo Flutter.
 
 ## Batas validasi
 
-Tidak ada klaim keberhasilan API, audio, atau penyimpanan progres; implementasi tersebut memang belum tersedia pada tahap pertama. Tujuh metadata surah awal bukan respons katalog 114 surah. Tes model hanya memeriksa pemetaan field, bukan koneksi API.
+Android SDK belum tersedia di Codex Cloud; build APK versi ini dijalankan melalui GitHub Actions pada PR. Status run dan artifact versi ini dicatat di deskripsi PR setelah selesai. Hasil APK tahap pertama tidak dianggap sebagai bukti build versi 1.1.0.
 
-Konfigurasi Android release masih memakai debug signing template Flutter. APK yang nantinya dibangun CI ditujukan untuk pengujian pribadi, bukan publikasi Google Play. Build Web dan kelulusan tes widget tidak membuktikan build atau pemasangan APK Android berhasil.
+Belum dilakukan pada perangkat fisik: instalasi/upgrade APK, mendengarkan seluruh qari, izin GPS saat ditolak/ditolak permanen, pengiriman notifikasi saat layar terkunci/Doze/reboot, serta tampilan ikon pada launcher vendor. Tes notifikasi membuktikan permintaan penjadwalan dikirim melalui plugin, bukan bahwa sistem operasi telah menampilkan notifikasi pada waktu yang tepat.
 
-Langkah berikutnya: unduh **Tahfidz-Quran-APK** dari run yang berhasil, lalu uji instalasi dan navigasi pada HP Android. PR belum digabungkan ke main. Panduan lengkap ada di README. Pembaruan laporan setelah run berhasil hanya mengubah dokumentasi; hasil build di atas merujuk pada commit yang disebutkan secara eksplisit.
+Enam qari aktif; empat belas qari tambahan belum diintegrasikan karena sumber per ayat dan izin penggunaannya belum terverifikasi. Tidak ada audio URL buatan. Notifikasi hanya dijadwalkan tujuh hari ke depan, memerlukan aplikasi dibuka berkala, dan memakai mode inexact sesuai pembatasan Android. Penyimpanan tidak disinkronkan ke cloud.
