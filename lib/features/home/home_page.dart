@@ -8,7 +8,6 @@ import '../surah/surah_detail_page.dart';
 import '../tahfidz/tahfidz_page.dart';
 import '../progress/progress_page.dart';
 import '../prayer/prayer_page.dart';
-import '../prayer/prayer_page.dart';
 import '../settings/settings_page.dart';
 import '../qari/qari_page.dart';
 
