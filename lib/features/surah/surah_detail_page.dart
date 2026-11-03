@@ -6,6 +6,7 @@ import '../../services/quran_repository.dart';
 import '../../services/player_controller.dart';
 import '../../widgets/common.dart';
 import '../../widgets/mini_player.dart';
+import '../qari/qari_page.dart';
 
 class SurahDetailPage extends StatefulWidget {
   const SurahDetailPage({
@@ -81,6 +82,14 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                   spacing: 12,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        c,
+                        MaterialPageRoute<void>(builder: (_) => const QariPage()),
+                      ),
+                      icon: const Icon(Icons.headphones_rounded),
+                      label: Text(c.t('Pilih Qari', 'Choose reciter')),
+                    ),
                     DropdownButton<String>(
                       value: s.store.get('qari', '05'),
                       items: qaris.entries

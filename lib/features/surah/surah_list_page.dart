@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import 'surah_detail_page.dart';
+import '../../core/constants/app_colors.dart';
 
 class SurahListPage extends StatefulWidget {
   const SurahListPage({super.key, this.memorize = false});
@@ -48,20 +49,44 @@ class _SurahListPageState extends State<SurahListPage> {
                   itemCount: chapters.length,
                   itemBuilder: (c, i) {
                     final s = chapters[i];
-                    return ListTile(
-                      leading: CircleAvatar(child: Text('${s.number}')),
-                      title: Text(s.name),
-                      subtitle: Text('${s.count} ${c.t('ayat', 'verses')}'),
-                      trailing: Text(
-                        s.arabic,
-                        textDirection: TextDirection.rtl,
-                      ),
-                      onTap: () => Navigator.push(
-                        c,
-                        MaterialPageRoute<void>(
-                          builder: (_) => SurahDetailPage(
-                            number: s.number,
-                            memorize: widget.memorize,
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                      child: Card(
+                        elevation: 0,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          side: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(c).colorScheme.primaryContainer,
+                            child: Text('${s.number}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                          ),
+                          title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle: Text('${s.count} ${c.t('ayat', 'verses')}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 125),
+                                child: Text(s.arabic, textDirection: TextDirection.rtl,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 19, color: AppColors.emerald)),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.chevron_right_rounded, size: 18),
+                            ],
+                          ),
+                          onTap: () => Navigator.push(
+                            c,
+                            MaterialPageRoute<void>(
+                              builder: (_) => SurahDetailPage(
+                                number: s.number,
+                                memorize: widget.memorize,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -81,14 +106,29 @@ class JuzPage extends StatelessWidget {
     final q = Session.of(c).quran;
     return ListView.builder(
       itemCount: 30,
-      itemBuilder: (c, i) => ListTile(
-        leading: CircleAvatar(child: Text('${i + 1}')),
-        title: Text('Juz ${i + 1}'),
-        subtitle: Text('${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}'),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.push(
-          c,
-          MaterialPageRoute<void>(builder: (_) => SurahDetailPage(juz: i + 1)),
+      itemBuilder: (c, i) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        child: Card(
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(c).colorScheme.primaryContainer,
+              child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            title: Text('Juz ${i + 1}', style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text('${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(builder: (_) => SurahDetailPage(juz: i + 1)),
+            ),
+          ),
         ),
       ),
     );
