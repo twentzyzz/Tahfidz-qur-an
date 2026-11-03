@@ -122,20 +122,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         mainAxisSize: MainAxisSize.min,
         children: [
           const MiniPlayer(),
-          NavigationBar(
-            height: 74,
-            elevation: 0,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            selectedIndex: index,
-            onDestinationSelected: (i) => setState(() => index = i),
-            destinations: [
-              for (var i = 0; i < 5; i++)
-                NavigationDestination(
-                  icon: Icon(outline[i]),
-                  selectedIcon: Icon(selected[i]),
-                  label: labels[i],
-                ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 500) {
+                return _CompactBottomNavigation(
+                  labels: labels,
+                  outline: outline,
+                  selected: selected,
+                  index: index,
+                  onSelected: (i) => setState(() => index = i),
+                );
+              }
+              return NavigationBar(
+                height: 74,
+                elevation: 0,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                selectedIndex: index,
+                onDestinationSelected: (i) => setState(() => index = i),
+                destinations: [
+                  for (var i = 0; i < 5; i++)
+                    NavigationDestination(
+                      icon: Icon(outline[i]),
+                      selectedIcon: Icon(selected[i]),
+                      label: labels[i],
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -340,6 +353,81 @@ class _Shortcut extends StatelessWidget {
               const SizedBox(height: 12),
               Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompactBottomNavigation extends StatelessWidget {
+  const _CompactBottomNavigation({
+    required this.labels,
+    required this.outline,
+    required this.selected,
+    required this.index,
+    required this.onSelected,
+  });
+
+  final List<String> labels;
+  final List<IconData> outline, selected;
+  final int index;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      key: const Key('compact-bottom-navigation'),
+      color: colors.surface,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            children: [
+              for (var i = 0; i < labels.length; i++)
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: index == i,
+                    label: labels[i],
+                    child: InkWell(
+                      onTap: () => onSelected(i),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              index == i ? selected[i] : outline[i],
+                              size: 24,
+                              color: index == i
+                                  ? colors.primary
+                                  : colors.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              labels[i],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: index == i ? FontWeight.w800 : FontWeight.w500,
+                                color: index == i
+                                    ? colors.primary
+                                    : colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
