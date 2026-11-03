@@ -94,7 +94,12 @@ void main() {
       Theme.of(t.element(find.text('Settings'))).brightness,
       Brightness.dark,
     );
-    expect(t.takeException(), isNull);
+    final error = t.takeException();
+    if (error != null) {
+      debugPrint('NARROW_LAYOUT_ERROR: $error');
+      debugDumpRenderTree();
+    }
+    expect(error, isNull);
     await t.pumpWidget(const SizedBox());
   });
   testWidgets('Tahfidz hides Arabic and selecting qari persists', (t) async {
