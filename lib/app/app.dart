@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 
 import '../l10n/app_strings.dart';
+import '../core/constants/app_colors.dart';
 import '../services/app_store.dart';
 import '../services/quran_repository.dart';
 import '../services/player_controller.dart';
@@ -101,19 +102,46 @@ class _TahfidzAppState extends State<TahfidzApp> {
     );
   }
 
-  ThemeData theme(Brightness b) => ThemeData(
-    useMaterial3: true,
-    brightness: b,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF087F5B),
+  ThemeData theme(Brightness b) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: AppColors.emerald,
       brightness: b,
-      secondary: const Color(0xFFB58A30),
-    ),
-    navigationBarTheme: const NavigationBarThemeData(
-      indicatorColor: Color(0xFF86DDB6),
-    ),
-    inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(),
-    ),
-  );
+      secondary: AppColors.gold,
+    );
+    final dark = b == Brightness.dark;
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      brightness: b,
+      scaffoldBackgroundColor: dark ? scheme.surface : AppColors.canvas,
+      appBarTheme: AppBarTheme(
+        backgroundColor: dark ? scheme.surface : AppColors.canvas,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: false,
+        elevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        color: scheme.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surface,
+        indicatorColor: scheme.primaryContainer,
+        elevation: 0,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: scheme.surface,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+    );
+  }
 }
