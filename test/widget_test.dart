@@ -10,7 +10,9 @@ Future<void> boot(WidgetTester t) async {
   await t.pumpWidget(const TahfidzApp());
   for (
     var i = 0;
-    i < 30 && find.byType(NavigationBar).evaluate().isEmpty;
+    i < 30 &&
+        find.byType(NavigationBar).evaluate().isEmpty &&
+        find.byKey(const Key('compact-bottom-navigation')).evaluate().isEmpty;
     i++
   ) {
     await t.runAsync(() async {
@@ -18,7 +20,11 @@ Future<void> boot(WidgetTester t) async {
     });
     await t.pump(const Duration(milliseconds: 50));
   }
-  expect(find.byType(NavigationBar), findsOneWidget);
+  expect(
+    find.byType(NavigationBar).evaluate().isNotEmpty ||
+        find.byKey(const Key('compact-bottom-navigation')).evaluate().isNotEmpty,
+    isTrue,
+  );
   await t.pumpAndSettle();
 }
 
@@ -27,7 +33,7 @@ void main() {
     'Bottom navigation, search, real verse reader, bookmark and progress',
     (t) async {
       await boot(t);
-      await t.tap(find.text('Daftar Surah'));
+      await t.tap(find.text('Al-Qur’an').last);
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField).first, 'Al-Fatihah');
       await t.pumpAndSettle();
