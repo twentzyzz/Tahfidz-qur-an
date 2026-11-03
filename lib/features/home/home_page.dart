@@ -80,8 +80,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Image.asset('assets/branding/logo.png', width: 38, height: 38),
               const SizedBox(width: 10),
             ],
-            Text(index == 0 ? 'Tahfidz Quran' : labels[index],
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+            Flexible(
+              child: Text(
+                index == 0 ? 'Tahfidz Quran' : labels[index],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
           ],
         ),
         actions: [
