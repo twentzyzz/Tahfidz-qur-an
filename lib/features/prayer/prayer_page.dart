@@ -116,6 +116,13 @@ class _PrayerSummaryState extends State<PrayerSummary> {
             style: Theme.of(c).textTheme.titleMedium,
           ),
           Text(day.date),
+          const SizedBox(height: 12),
+          if (at != null)
+            Text(
+              '${c.t(prayerId[idx], prayerEn[idx])}  ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}',
+              style: Theme.of(c).textTheme.headlineSmall,
+            ),
+          const SizedBox(height: 8),
           if (next != null)
             Text(
               '${c.t('Salat berikutnya', 'Next prayer')}: ${c.t(prayerId[idx], prayerEn[idx])} • ${remaining!.inHours.toString().padLeft(2, '0')}:${(remaining.inMinutes % 60).toString().padLeft(2, '0')}:${(remaining.inSeconds % 60).toString().padLeft(2, '0')}',
@@ -138,6 +145,11 @@ class _PrayerSummaryState extends State<PrayerSummary> {
           if (widget.full) ...[
             for (var i = 0; i < 5; i++)
               CheckboxListTile(
+                selected: next == prayerKeys[i] && at?.day == now.day,
+                selectedTileColor: Theme.of(c).colorScheme.primaryContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 title: Text(c.t(prayerId[i], prayerEn[i])),
                 subtitle: Text(day.times[prayerKeys[i]]!),
                 value:

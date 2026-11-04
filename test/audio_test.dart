@@ -11,6 +11,14 @@ class FakePlayer implements AudioPlayer {
   List<AudioSource> sources = [];
   int seekIndex = 0;
   @override
+  Duration position = Duration.zero;
+  @override
+  Duration? get duration => const Duration(seconds: 30);
+  @override
+  Stream<Duration> get positionStream => const Stream.empty();
+  @override
+  Stream<Duration?> get durationStream => const Stream.empty();
+  @override
   Stream<int?> get currentIndexStream => const Stream.empty();
   @override
   Stream<PlayerState> get playerStateStream => const Stream.empty();
@@ -23,6 +31,8 @@ class FakePlayer implements AudioPlayer {
     ShuffleOrder? shuffleOrder,
   }) async {
     this.sources = sources;
+    seekIndex = initialIndex ?? 0;
+    position = initialPosition ?? Duration.zero;
     return Duration.zero;
   }
 
@@ -43,7 +53,8 @@ class FakePlayer implements AudioPlayer {
 
   @override
   Future<void> seek(Duration? position, {int? index}) async {
-    seekIndex = index ?? 0;
+    seekIndex = index ?? seekIndex;
+    this.position = position ?? Duration.zero;
   }
 
   @override
@@ -78,6 +89,22 @@ void main() {
         (engine.sources.first as UriAudioSource).uri.toString(),
         verses.first.audio['03'],
       );
+      await p.seek(const Duration(seconds: 8));
+      expect(engine.position, const Duration(seconds: 8));
+      await p.toggle(); // pause before switching voices
+      p.index = 1;
+      await p.changeQari('06');
+      expect(engine.seekIndex, 1);
+      expect(engine.position, const Duration(seconds: 8));
+      expect(p.playing, false);
+      expect(
+        (engine.sources.first as UriAudioSource).uri.toString(),
+        verses.first.audio['06'],
+      );
+      await p.changeRepeats(5);
+      expect(engine.sources.length, 10);
+      expect(engine.seekIndex, 1);
+      expect(p.playing, false);
       await p.play(verses, 'invalid', 1);
       expect(p.failed, true);
       await p.stop();

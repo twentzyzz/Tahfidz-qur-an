@@ -22,7 +22,10 @@ Future<void> boot(WidgetTester t) async {
   }
   expect(
     find.byType(NavigationBar).evaluate().isNotEmpty ||
-        find.byKey(const Key('compact-bottom-navigation')).evaluate().isNotEmpty,
+        find
+            .byKey(const Key('compact-bottom-navigation'))
+            .evaluate()
+            .isNotEmpty,
     isTrue,
   );
   await t.pumpAndSettle();
@@ -119,9 +122,11 @@ void main() {
     await t.tap(find.byTooltip('Sembunyikan / tampilkan Arab'));
     await t.pumpAndSettle();
     expect(arabic, findsOneWidget);
-    await t.tap(find.byType(DropdownButton<String>));
+    await t.tap(find.text('Pilih Qari'));
     await t.pumpAndSettle();
-    await t.tap(find.text('Abdurrahman As-Sudais').last);
+    await t.enterText(find.byType(TextField), 'Sudais');
+    await t.pumpAndSettle();
+    await t.tap(find.text('Abdurrahman As-Sudais'));
     await t.pumpAndSettle();
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('user.v2'), contains('"qari":"03"'));

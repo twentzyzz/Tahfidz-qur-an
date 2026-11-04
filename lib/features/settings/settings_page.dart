@@ -1,3 +1,7 @@
+import '../../widgets/section_heading.dart';
+import '../qari/qari_page.dart';
+import '../../services/player_controller.dart';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -89,7 +93,9 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(title: Text(c.t('Pengaturan', 'Settings'))),
       body: padded([
+        SectionHeading(c.t('Umum', 'General'), icon: Icons.tune_rounded),
         DropdownButtonFormField<String>(
+          isExpanded: true,
           initialValue: s.store.get('language', 'id'),
           decoration: InputDecoration(labelText: c.t('Bahasa', 'Language')),
           items: const [
@@ -105,6 +111,10 @@ class _SettingsPageState extends State<SettingsPage> {
           title: Text(c.t('Tema gelap', 'Dark theme')),
           value: s.store.get('dark', false),
           onChanged: (v) => perform(c, () => s.store.set('dark', v)),
+        ),
+        SectionHeading(
+          c.t('Al-Qur’an', 'Quran'),
+          icon: Icons.menu_book_rounded,
         ),
         Text(c.t('Ukuran teks Arab', 'Arabic text size')),
         Slider(
@@ -123,6 +133,19 @@ class _SettingsPageState extends State<SettingsPage> {
           divisions: 8,
           onChanged: (v) => perform(c, () => s.store.set('translationSize', v)),
         ),
+        ListTile(
+          leading: const Icon(Icons.headphones_rounded),
+          title: Text(c.t('Qari & audio', 'Reciter & audio')),
+          subtitle: Text(
+            qaris[s.store.get<String>('qari', '05')] ?? qaris['05']!,
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => Navigator.push(
+            c,
+            MaterialPageRoute<void>(builder: (_) => const QariPage()),
+          ),
+        ),
+        SectionHeading(c.t('Ibadah', 'Worship'), icon: Icons.mosque_outlined),
         ListTile(
           title: Text(c.t('Kota/kabupaten', 'City/regency')),
           subtitle: Text(
@@ -170,6 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
         ),
         DropdownButtonFormField<int>(
+          isExpanded: true,
           initialValue: s.store.get('reminder', 10),
           decoration: InputDecoration(
             labelText: c.t('Pengingat sebelumnya', 'Advance reminder'),
@@ -194,12 +218,23 @@ class _SettingsPageState extends State<SettingsPage> {
             'Notifications are scheduled for 7 days and refreshed when the app opens. Android may delay notifications to save battery. Select a city before enabling them.',
           ),
         ),
-        const Divider(),
+        SectionHeading(
+          c.t('Aplikasi', 'Application'),
+          icon: Icons.info_outline_rounded,
+        ),
         Text(
           c.t('Tentang aplikasi', 'About'),
           style: Theme.of(c).textTheme.titleLarge,
         ),
         const Text('Tahfidz Quran • 1.1.0 (2)'),
+        TextButton(
+          onPressed: () => showLicensePage(
+            context: c,
+            applicationName: 'Tahfidz Quran',
+            applicationVersion: '1.1.0 (2)',
+          ),
+          child: Text(c.t('Lisensi font & pustaka', 'Font & library licenses')),
+        ),
         Text(c.t('Pengembang: twentzyzz', 'Developer: twentzyzz')),
         const Text(
           'Quran & audio: EQuran.id\nJuz: AlQuran Cloud\nJadwal salat / Prayer times: MyQuran API',

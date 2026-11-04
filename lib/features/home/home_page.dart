@@ -1,3 +1,9 @@
+import '../../core/constants/app_icons.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/constants/app_radius.dart';
+import '../../services/player_controller.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../app/session.dart';
@@ -56,20 +62,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       c.t('Hafalan', 'Memorize'),
       c.t('Progres', 'Progress'),
     ];
-    const outline = [
-      Icons.home_outlined,
-      Icons.menu_book_outlined,
-      Icons.auto_stories_outlined,
-      Icons.bookmark_border_rounded,
-      Icons.insights_outlined,
-    ];
-    const selected = [
-      Icons.home_rounded,
-      Icons.menu_book_rounded,
-      Icons.auto_stories_rounded,
-      Icons.bookmark_rounded,
-      Icons.insights_rounded,
-    ];
+    const outline = AppIcons.navigation;
+    const selected = AppIcons.selectedNavigation;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 68,
@@ -92,14 +86,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         actions: [
           IconButton(
-            tooltip: c.t('Ibadah 5 Waktu', 'Daily prayers'),
-            onPressed: () => open(const PrayerPage()),
-            icon: const Icon(Icons.mosque_outlined),
+            tooltip: c.t('Notifikasi salat', 'Prayer notifications'),
+            onPressed: () => open(const SettingsPage()),
+            icon: const Icon(Icons.notifications_none_rounded),
           ),
           IconButton(
             tooltip: c.t('Pengaturan', 'Settings'),
             onPressed: () => open(const SettingsPage()),
-            icon: const Icon(Icons.tune_rounded),
+            icon: const Icon(AppIcons.settings),
           ),
           const SizedBox(width: 8),
         ],
@@ -114,9 +108,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             onProgress: () => setState(() => index = 4),
             onQari: () => open(const QariPage()),
             onPrayer: () => open(const PrayerPage()),
-            onDetail: (surah, verse) => open(
-              SurahDetailPage(number: surah, initialVerse: verse),
+            onResume: (surah, verse) => open(
+              SurahDetailPage(
+                number: surah,
+                initialVerse: verse,
+                memorize: true,
+              ),
             ),
+            onDetail: (surah, verse) =>
+                open(SurahDetailPage(number: surah, initialVerse: verse)),
           ),
           const SurahListPage(),
           const JuzPage(),
@@ -171,90 +171,183 @@ class _Dashboard extends StatelessWidget {
     required this.onQari,
     required this.onPrayer,
     required this.onDetail,
+    required this.onResume,
   });
   final VoidCallback onSurahs, onJuz, onMemorize, onProgress, onQari, onPrayer;
-  final void Function(int, int) onDetail;
+  final void Function(int, int) onDetail, onResume;
 
   @override
   Widget build(BuildContext context) {
     final s = Session.of(context);
     final cs = Theme.of(context).colorScheme;
-    final done = s.store.map('progress').values.where((v) => v == 'done').length;
+    final done = s.store
+        .map('progress')
+        .values
+        .where((v) => v == 'done')
+        .length;
     final last = s.store.map('last');
+    final memo = s.store.map('lastMemorization');
+    final hasMemo = memo['surah'] is int && memo['verse'] is int;
+    final chapter = hasMemo
+        ? s.quran.chapters[(memo['surah'] as int) - 1]
+        : null;
+    final chapterDone = chapter == null
+        ? 0
+        : s.store
+              .map('progress')
+              .entries
+              .where(
+                (e) =>
+                    e.key.startsWith('${chapter.number}:') && e.value == 'done',
+              )
+              .length;
     final bookmarks = s.store.map('bookmarks').keys.toList();
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 850),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.xxl,
+          ),
           children: [
-            Text(context.t('Assalamu’alaikum', 'Assalamu alaikum'),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: cs.onSurfaceVariant,
-                )),
+            Text(
+              context.t('Assalamu’alaikum', 'Assalamu alaikum'),
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(color: cs.onSurfaceVariant),
+            ),
             const SizedBox(height: 4),
-            Text(context.t('Temukan ritme hafalanmu.', 'Find your memorization rhythm.'),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -.4,
-                )),
-            const SizedBox(height: 20),
+            Text(
+              context.t(
+                'Temukan ritme hafalanmu.',
+                'Find your memorization rhythm.',
+              ),
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              MaterialLocalizations.of(context).formatFullDate(DateTime.now()),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+            ),
+            const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(26),
-                color: cs.primary,
+                borderRadius: BorderRadius.circular(AppRadius.hero),
+                color: AppColors.darkEmerald,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.auto_stories_rounded,
-                      color: cs.onPrimary.withValues(alpha: .82), size: 32),
+                  Text(
+                    context.t('LANJUTKAN HAFALAN', 'CONTINUE MEMORIZING'),
+                    style: const TextStyle(
+                      color: AppColors.gold,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  Text(context.t('Perjalanan hafalan dimulai di sini',
-                      'Your memorization journey starts here'),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: cs.onPrimary, fontWeight: FontWeight.w800,
-                    )),
+                  Text(
+                    chapter?.name ??
+                        context.t(
+                          'Satu ayat, satu langkah.',
+                          'One verse, one step.',
+                        ),
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(color: Colors.white),
+                  ),
                   const SizedBox(height: 8),
-                  Text(context.t('Baca satu ayat, ulangi, dan lanjutkan sesuai kemampuanmu.',
-                      'Read one verse, repeat, and progress at your own pace.'),
-                    style: TextStyle(color: cs.onPrimary.withValues(alpha: .88), height: 1.5)),
+                  Text(
+                    hasMemo
+                        ? '${context.t('Ayat', 'Verse')} ${memo['verse']} · $chapterDone / ${chapter!.count} ${context.t('ayat hafal', 'memorized')}'
+                        : context.t(
+                            'Bangun kebiasaan baik, mulai dari ayat pertama.',
+                            'Build a gentle habit, starting with the first verse.',
+                          ),
+                    style: const TextStyle(
+                      color: Color(0xFFD5E8DF),
+                      height: 1.5,
+                    ),
+                  ),
+                  if (chapter != null) ...[
+                    const SizedBox(height: 16),
+                    LinearProgressIndicator(
+                      value: chapterDone / chapter.count,
+                      color: AppColors.gold,
+                      backgroundColor: Colors.white24,
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
-                      backgroundColor: cs.onPrimary,
-                      foregroundColor: cs.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.darkEmerald,
                     ),
-                    onPressed: onMemorize,
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text(context.t('Mulai Menghafal', 'Start memorizing')),
+                    onPressed: hasMemo
+                        ? () => onResume(
+                            memo['surah'] as int,
+                            memo['verse'] as int,
+                          )
+                        : onMemorize,
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(
+                      hasMemo
+                          ? context.t('Lanjutkan', 'Continue')
+                          : context.t('Mulai Menghafal', 'Start memorizing'),
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            Text(context.t('Akses cepat', 'Quick access'),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              context.t('Akses cepat', 'Quick access'),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _Shortcut(icon: Icons.menu_book_rounded,
-                    title: context.t('Daftar Surah', 'Surah list'), onTap: onSurahs)),
+                Expanded(
+                  child: _Shortcut(
+                    icon: Icons.menu_book_rounded,
+                    title: context.t('Daftar Surah', 'Surah list'),
+                    onTap: onSurahs,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _Shortcut(icon: Icons.auto_stories_rounded,
-                    title: '30 Juz', onTap: onJuz)),
+                Expanded(
+                  child: _Shortcut(
+                    icon: Icons.auto_stories_rounded,
+                    title: '30 Juz',
+                    onTap: onJuz,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _Shortcut(icon: Icons.headphones_rounded,
-                    title: context.t('Pilih Qari', 'Choose reciter'), onTap: onQari)),
+                Expanded(
+                  child: _Shortcut(
+                    icon: Icons.headphones_rounded,
+                    title: context.t('Audio Murottal', 'Quran audio'),
+                    onTap: onQari,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _Shortcut(icon: Icons.mosque_outlined,
-                    title: context.t('Ibadah 5 Waktu', 'Daily prayers'), onTap: onPrayer)),
+                Expanded(
+                  child: _Shortcut(
+                    icon: Icons.bookmark_border_rounded,
+                    title: context.t('Latihan Hafalan', 'Memorize'),
+                    onTap: onMemorize,
+                  ),
+                ),
               ],
             ),
             if (last['surah'] is int && last['verse'] is int) ...[
@@ -262,14 +355,23 @@ class _Dashboard extends StatelessWidget {
               Card(
                 margin: EdgeInsets.zero,
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   leading: const Icon(Icons.bookmark_added_outlined),
-                  title: Text(context.t('Lanjutkan Bacaan', 'Continue reading')),
+                  title: Text(
+                    context.t('Lanjutkan Bacaan', 'Continue reading'),
+                  ),
                   subtitle: Text(
                     '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
                   ),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                  onTap: () => onDetail(last['surah'] as int, last['verse'] as int),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                  onTap: () =>
+                      onDetail(last['surah'] as int, last['verse'] as int),
                 ),
               ),
             ],
@@ -283,40 +385,98 @@ class _Dashboard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(context.t('Progres Hafalan', 'Memorization progress'),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800))),
-                        Text('${(done / 6236 * 100).toStringAsFixed(1)}%',
-                            style: TextStyle(color: cs.primary, fontWeight: FontWeight.w800)),
+                        Expanded(
+                          child: Text(
+                            context.t(
+                              'Progres Hafalan',
+                              'Memorization progress',
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        Text(
+                          '${(done / 6236 * 100).toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            color: cs.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    LinearProgressIndicator(value: done / 6236, minHeight: 8, borderRadius: BorderRadius.circular(12)),
+                    LinearProgressIndicator(
+                      value: done / 6236,
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     const SizedBox(height: 10),
-                    Text('$done / 6236 ${context.t('ayat sudah hafal', 'verses memorized')}'),
+                    Text(
+                      '$done / 6236 ${context.t('ayat sudah hafal', 'verses memorized')}',
+                    ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: TextButton.icon(onPressed: onProgress,
+                      child: TextButton.icon(
+                        onPressed: onProgress,
                         icon: const Icon(Icons.arrow_forward_rounded),
-                        label: Text(context.t('Lihat progres', 'View progress'))),
+                        label: Text(
+                          context.t('Lihat progres', 'View progress'),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            Text(context.t('Salat berikutnya', 'Next prayer'),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              context.t('Salat berikutnya', 'Next prayer'),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 10),
             const PrayerSummary(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onPrayer,
+                child: Text(
+                  context.t(
+                    'Jadwal & checklist salat',
+                    'Prayer schedule & checklist',
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              context.t('Qari Pilihan', 'Featured reciters'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            for (final id in ['05', '06', '03'])
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: QariAvatar(name: qaris[id]!),
+                title: Text(qaris[id]!),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: onQari,
+              ),
             const SizedBox(height: 20),
-            Text(context.t('Bookmark ayat', 'Verse bookmarks'),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              context.t('Bookmark ayat', 'Verse bookmarks'),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 10),
             if (bookmarks.isEmpty)
-              Text(context.t('Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
-                  'No bookmarks yet. Tap the bookmark icon while reading.'),
-                  style: TextStyle(color: cs.onSurfaceVariant)),
+              Text(
+                context.t(
+                  'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
+                  'No bookmarks yet. Tap the bookmark icon while reading.',
+                ),
+                style: TextStyle(color: cs.onSurfaceVariant),
+              ),
             for (final ref in bookmarks.take(5))
               ListTile(
                 title: Text(
@@ -324,7 +484,10 @@ class _Dashboard extends StatelessWidget {
                 ),
                 leading: const Icon(Icons.bookmark_outline_rounded),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => onDetail(int.parse(ref.split(':')[0]), int.parse(ref.split(':')[1])),
+                onTap: () => onDetail(
+                  int.parse(ref.split(':')[0]),
+                  int.parse(ref.split(':')[1]),
+                ),
               ),
           ],
         ),
@@ -334,7 +497,11 @@ class _Dashboard extends StatelessWidget {
 }
 
 class _Shortcut extends StatelessWidget {
-  const _Shortcut({required this.icon, required this.title, required this.onTap});
+  const _Shortcut({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
   final IconData icon;
   final String title;
   final VoidCallback onTap;
@@ -357,8 +524,12 @@ class _Shortcut extends StatelessWidget {
             children: [
               Icon(icon, size: 28, color: cs.primary),
               const SizedBox(height: 12),
-              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ],
           ),
         ),
@@ -407,12 +578,25 @@ class _CompactBottomNavigation extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              index == i ? selected[i] : outline[i],
-                              size: 24,
-                              color: index == i
-                                  ? colors.primary
-                                  : colors.onSurfaceVariant,
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: index == i
+                                    ? colors.primaryContainer
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Icon(
+                                index == i ? selected[i] : outline[i],
+                                size: 24,
+                                color: index == i
+                                    ? colors.primary
+                                    : colors.onSurfaceVariant,
+                              ),
                             ),
                             const SizedBox(height: 5),
                             Text(
@@ -422,7 +606,9 @@ class _CompactBottomNavigation extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: index == i ? FontWeight.w800 : FontWeight.w500,
+                                fontWeight: index == i
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
                                 color: index == i
                                     ? colors.primary
                                     : colors.onSurfaceVariant,
