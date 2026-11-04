@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import 'surah_detail_page.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/theme/app_typography.dart';
+import '../../services/quran_repository.dart';
 
 class SurahListPage extends StatefulWidget {
   const SurahListPage({super.key, this.memorize = false});
@@ -56,24 +57,47 @@ class _SurahListPageState extends State<SurahListPage> {
                         margin: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
-                          side: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
+                          side: BorderSide(
+                            color: Theme.of(c).colorScheme.outlineVariant,
+                          ),
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(c).colorScheme.primaryContainer,
-                            child: Text('${s.number}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 9,
                           ),
-                          title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(c)
+                                .colorScheme
+                                .primaryContainer,
+                            child: Text(
+                              '${s.number}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            s.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           subtitle: Text('${s.count} ${c.t('ayat', 'verses')}'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 125),
-                                child: Text(s.arabic, textDirection: TextDirection.rtl,
+                                constraints: const BoxConstraints(
+                                  maxWidth: 125,
+                                ),
+                                child: Text(
+                                  s.arabic,
+                                  textDirection: TextDirection.rtl,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 19, color: AppColors.emerald)),
+                                  style: AppTypography.arabic.copyWith(
+                                    fontSize: 19,
+                                    color: Theme.of(c).colorScheme.primary,
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 8),
                               const Icon(Icons.chevron_right_rounded, size: 18),
@@ -116,21 +140,41 @@ class JuzPage extends StatelessWidget {
             side: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 9,
+            ),
             leading: CircleAvatar(
               backgroundColor: Theme.of(c).colorScheme.primaryContainer,
-              child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                '${i + 1}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            title: Text('Juz ${i + 1}', style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text('${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}'),
+            title: Text(
+              'Juz ${i + 1}',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: Text(
+              '${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]} — ${juzEnd(q, i)}',
+            ),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.push(
               c,
-              MaterialPageRoute<void>(builder: (_) => SurahDetailPage(juz: i + 1)),
+              MaterialPageRoute<void>(
+                builder: (_) => SurahDetailPage(juz: i + 1),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+String juzEnd(QuranRepository q, int index) {
+  if (index == 29) return '${q.chapters.last.name} : ${q.chapters.last.count}';
+  final next = q.juz[index + 1];
+  final chapter = q.chapters[next[0] - (next[1] == 1 ? 2 : 1)];
+  return '${chapter.name} : ${next[1] == 1 ? chapter.count : next[1] - 1}';
 }

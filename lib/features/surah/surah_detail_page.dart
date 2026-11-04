@@ -1,9 +1,12 @@
+import 'package:flutter/services.dart';
+
+import '../../core/theme/app_typography.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/quran_repository.dart';
-import '../../services/player_controller.dart';
 import '../../widgets/common.dart';
 import '../../widgets/mini_player.dart';
 import '../qari/qari_page.dart';
@@ -43,6 +46,12 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     end = data.length;
     pages?.dispose();
     pages = PageController(initialPage: current);
+    if (mounted && widget.memorize) {
+      await Session.of(context).store.set('lastMemorization', {
+        'surah': data[current].surah,
+        'verse': data[current].number,
+      });
+    }
     return data;
   }
 
@@ -85,31 +94,12 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                     OutlinedButton.icon(
                       onPressed: () => Navigator.push(
                         c,
-                        MaterialPageRoute<void>(builder: (_) => const QariPage()),
+                        MaterialPageRoute<void>(
+                          builder: (_) => const QariPage(),
+                        ),
                       ),
                       icon: const Icon(Icons.headphones_rounded),
                       label: Text(c.t('Pilih Qari', 'Choose reciter')),
-                    ),
-                    DropdownButton<String>(
-                      value: s.store.get('qari', '05'),
-                      items: qaris.entries
-                          .map(
-                            (q) => DropdownMenuItem(
-                              value: q.key,
-                              child: Text(q.value),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (q) => perform(c, () async {
-                        await s.store.set('qari', q);
-                        if (s.player.current != null) {
-                          await s.player.play(
-                            s.player.verses,
-                            q!,
-                            s.player.repeats,
-                          );
-                        }
-                      }),
                     ),
                     DropdownButton<int>(
                       value: repeat,
@@ -198,10 +188,10 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                     setState(() => current = i);
                     perform(
                       c,
-                      () => s.store.set('last', {
-                        'surah': verses[i].surah,
-                        'verse': verses[i].number,
-                      }),
+                      () => s.store.set(
+                        widget.memorize ? 'lastMemorization' : 'last',
+                        {'surah': verses[i].surah, 'verse': verses[i].number},
+                      ),
                     );
                   },
                   itemBuilder: (c, i) {
@@ -224,13 +214,25 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                   color: Theme.of(c).colorScheme.primary,
                                 ),
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 8),
+                            Text(
+                              s.quran.chapters[v.surah - 1].arabic,
+                              textDirection: TextDirection.rtl,
+                              style: AppTypography.arabic.copyWith(
+                                fontSize: 24,
+                              ),
+                            ),
+                            Text(
+                              '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
+                              style: Theme.of(c).textTheme.bodySmall,
+                            ),
+                            const Divider(height: 32),
                             if (!hidden)
                               SelectableText(
                                 v.arabic,
                                 textDirection: TextDirection.rtl,
                                 textAlign: TextAlign.right,
-                                style: TextStyle(
+                                style: AppTypography.arabic.copyWith(
                                   fontSize: s.store
                                       .get<num>('arabicSize', 32)
                                       .toDouble(),
@@ -245,7 +247,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                            const SizedBox(height: 24),
+                            const Divider(height: 32),
                             SelectableText(
                               v.translation,
                               style: TextStyle(
@@ -265,6 +267,27 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                             Wrap(
                               spacing: 8,
                               children: [
+                                IconButton(
+                                  tooltip: c.t('Salin ayat', 'Copy verse'),
+                                  icon: const Icon(Icons.copy_outlined),
+                                  onPressed: () => perform(c, () async {
+                                    await Clipboard.setData(
+                                      ClipboardData(
+                                        text:
+                                            '${v.arabic}\n\n${v.translation}\n${s.quran.chapters[v.surah - 1].name} ${v.number} · EQuran.id',
+                                      ),
+                                    );
+                                    if (c.mounted) {
+                                      ScaffoldMessenger.of(c).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            c.t('Ayat disalin', 'Verse copied'),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }),
+                                ),
                                 IconButton(
                                   tooltip: c.t('Bookmark', 'Bookmark'),
                                   onPressed: () =>

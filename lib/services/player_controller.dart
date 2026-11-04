@@ -46,7 +46,14 @@ class PlayerController extends ChangeNotifier {
     for (var i = 0; i < repeat; i++)
       for (final v in input) v,
   ];
-  Future<void> play(List<Verse> input, String voice, int repeat) async {
+  Future<void> play(
+    List<Verse> input,
+    String voice,
+    int repeat, {
+    int initialIndex = 0,
+    Duration initialPosition = Duration.zero,
+    bool autoplay = true,
+  }) async {
     if (input.isEmpty) return;
     final token = ++generation;
     loading = true;
@@ -63,17 +70,23 @@ class PlayerController extends ChangeNotifier {
       verses = input;
       repeats = repeat;
       qari = voice;
-      index = 0;
-      await engine.setAudioSources(sources);
+      index = initialIndex.clamp(0, sources.length - 1);
+      await engine.setAudioSources(
+        sources,
+        initialIndex: index,
+        initialPosition: initialPosition,
+      );
       if (token != generation) return;
       loading = false;
       notifyListeners();
-      unawaited(
-        engine.play().catchError((Object e) {
-          failed = true;
-          notifyListeners();
-        }),
-      );
+      if (autoplay) {
+        unawaited(
+          engine.play().catchError((Object e) {
+            failed = true;
+            notifyListeners();
+          }),
+        );
+      }
     } catch (_) {
       if (token == generation) {
         loading = false;
@@ -81,6 +94,46 @@ class PlayerController extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  Duration get position => _engine?.position ?? Duration.zero;
+  Duration get duration => _engine?.duration ?? Duration.zero;
+  Stream<Duration> get positionStream =>
+      _engine?.positionStream ?? const Stream.empty();
+  Stream<Duration?> get durationStream =>
+      _engine?.durationStream ?? const Stream.empty();
+
+  Future<void> seek(Duration value) async {
+    if (current == null || loading) return;
+    try {
+      await engine.seek(value);
+    } catch (_) {
+      failed = true;
+      notifyListeners();
+    }
+  }
+
+  Future<void> changeQari(String voice) async {
+    if (current == null) return;
+    await play(
+      List.of(verses),
+      voice,
+      repeats,
+      initialIndex: index,
+      initialPosition: position,
+      autoplay: playing,
+    );
+  }
+
+  Future<void> changeRepeats(int count) async {
+    if (current == null) return;
+    await play(
+      List.of(verses),
+      qari,
+      count,
+      initialIndex: index % verses.length,
+      autoplay: playing,
+    );
   }
 
   Future<void> toggle() async {

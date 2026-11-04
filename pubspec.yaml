@@ -30,3 +30,13 @@ flutter:
   assets:
     - assets/data/
     - assets/branding/
+    - assets/qari/
+    - assets/fonts/Amiri-OFL.txt
+    - assets/fonts/Inter-OFL.txt
+  fonts:
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf

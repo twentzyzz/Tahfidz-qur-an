@@ -1,3 +1,6 @@
+import '../../widgets/weekly_progress.dart';
+import '../surah/surah_detail_page.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../app/session.dart';
@@ -27,12 +30,41 @@ class ProgressPage extends StatelessWidget {
         .toSet()
         .length;
     return padded([
-      Text(
-        '${(done / 6236 * 100).toStringAsFixed(1)}%',
-        style: Theme.of(c).textTheme.displaySmall,
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 144,
+                height: 144,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox.expand(
+                      child: CircularProgressIndicator(
+                        value: done / 6236,
+                        strokeWidth: 8,
+                        backgroundColor: Theme.of(c)
+                            .colorScheme
+                            .primaryContainer,
+                      ),
+                    ),
+                    Text(
+                      '${(done / 6236 * 100).toStringAsFixed(1)}%',
+                      style: Theme.of(c).textTheme.headlineMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                '$done / 6236 ${c.t('ayat sudah hafal', 'verses memorized')}',
+              ),
+            ],
+          ),
+        ),
       ),
-      LinearProgressIndicator(value: done / 6236),
-      Text('$done / 6236 ${c.t('ayat sudah hafal', 'verses memorized')}'),
       const SizedBox(height: 16),
       Text(
         '${c.t('Target harian', 'Daily goal')}: $daily / ${s.store.get('goal', 5)}',
@@ -49,9 +81,33 @@ class ProgressPage extends StatelessWidget {
             .toList(),
         onChanged: (v) => perform(c, () => s.store.set('goal', v)),
       ),
+      const SizedBox(height: 24),
+      WeeklyProgress(
+        counts: weeklyCounts(p, history, DateTime.now()),
+        now: DateTime.now(),
+      ),
+      const SizedBox(height: 24),
+      Text(
+        c.t('Perjalanan per surah', 'Your chapters'),
+        style: Theme.of(c).textTheme.titleLarge,
+      ),
+      if (p.isEmpty)
+        Text(
+          c.t(
+            'Mulai hafalan untuk melihat progres per surah.',
+            'Start memorizing to see chapter progress.',
+          ),
+        ),
       for (final surah in s.quran.chapters)
         if (p.keys.any((k) => k.startsWith('${surah.number}:')))
           ListTile(
+            onTap: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    SurahDetailPage(number: surah.number, memorize: true),
+              ),
+            ),
             title: Text(surah.name),
             subtitle: LinearProgressIndicator(
               value:
