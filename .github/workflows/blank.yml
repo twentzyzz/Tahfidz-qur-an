@@ -32,6 +32,8 @@ jobs:
           channel: stable
           flutter-version: '3.47.9'
           cache: true
+      - name: Prepare verified offline speech model
+        run: python3 tool/prepare_offline_model.py
       - name: Install dependencies from lockfile
         run: flutter pub get --enforce-lockfile
       - name: Analyze Dart code

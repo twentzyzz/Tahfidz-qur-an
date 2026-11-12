@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Downloaded, checksum-verified offline ASR assets (see tool/prepare_offline_model.py).
+/assets/models/whisper_tiny/*.onnx
+/assets/models/whisper_tiny/tiny-tokens.txt

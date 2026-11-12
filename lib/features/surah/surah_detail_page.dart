@@ -11,6 +11,7 @@ import '../../widgets/common.dart';
 import '../../widgets/mini_player.dart';
 import '../qari/qari_page.dart';
 import '../tahfidz/practice_page.dart';
+import '../offline_recitation/offline_recitation_page.dart';
 
 class SurahDetailPage extends StatefulWidget {
   const SurahDetailPage({
@@ -114,6 +115,24 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                         ),
                         icon: const Icon(Icons.quiz_outlined),
                         label: Text(c.t('Ujian rentang', 'Test this range')),
+                      ),
+                    if (widget.memorize)
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.push(
+                          c,
+                          MaterialPageRoute<void>(
+                            builder: (_) => OfflineRecitationPage(
+                              verses: verses.sublist(start - 1, end),
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.mic_none),
+                        label: Text(
+                          c.t(
+                            'Latihan dengan AI Offline',
+                            'Practice with offline AI',
+                          ),
+                        ),
                       ),
                     DropdownButton<int>(
                       value: repeat,

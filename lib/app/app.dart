@@ -36,6 +36,17 @@ class _TahfidzAppState extends State<TahfidzApp> {
           name,
         ], await rootBundle.loadString('assets/fonts/$name-OFL.txt'));
       }
+      for (final entry in {
+        'Whisper Tiny model': 'Whisper',
+        'sherpa-onnx runtime': 'sherpa-onnx',
+      }.entries) {
+        yield LicenseEntryWithLineBreaks(
+          [entry.key],
+          await rootBundle.loadString(
+            'assets/models/whisper_tiny/LICENSE-${entry.value}.txt',
+          ),
+        );
+      }
     });
     load();
   }

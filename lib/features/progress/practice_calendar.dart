@@ -5,6 +5,8 @@ import '../../l10n/app_strings.dart';
 import '../../services/practice_store.dart';
 import '../../widgets/common.dart';
 import '../tahfidz/practice_page.dart';
+import '../offline_recitation/offline_recitation_page.dart';
+import '../../services/offline_recitation/domain.dart';
 
 class PracticeCalendar extends StatefulWidget {
   const PracticeCalendar({super.key});
@@ -23,6 +25,12 @@ class _PracticeCalendarState extends State<PracticeCalendar> {
     final sessions = (store.data['practiceSessions'] as List? ?? [])
         .where((s) => (s['time'] as String).startsWith(practiceDate(selected)))
         .toList();
+    final offlineSessions =
+        (store.data['offlineRecitationSessions'] as List? ?? [])
+            .where(
+              (s) => (s['time'] as String).startsWith(practiceDate(selected)),
+            )
+            .toList();
     final dates = store.dailyRecords.keys.map(DateTime.parse).toList()..sort();
     final first = dates.isEmpty ? DateTime.now() : dates.first;
     return Scaffold(
@@ -63,11 +71,37 @@ class _PracticeCalendarState extends State<PracticeCalendar> {
           c.t('Hasil latihan manual', 'Manual practice results'),
           style: Theme.of(c).textTheme.titleLarge,
         ),
-        if (sessions.isEmpty)
+        if (sessions.isEmpty && offlineSessions.isEmpty)
           Text(
             c.t(
               'Belum ada hasil latihan pada tanggal ini.',
               'No practice results on this date.',
+            ),
+          ),
+        for (final raw in offlineSessions)
+          ListTile(
+            title: Text('AI Offline • ${(raw['refs'] as List).join(', ')}'),
+            subtitle: Text(
+              recitationStatusLabel(
+                c,
+                RecitationStatus.values.firstWhere(
+                  (status) => status.name == raw['status'],
+                  orElse: () => RecitationStatus.unassessed,
+                ),
+              ),
+            ),
+            trailing: IconButton(
+              tooltip: c.t('Hapus ringkasan', 'Delete summary'),
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => perform(
+                c,
+                () => store.update((next) {
+                  next['offlineRecitationSessions'] =
+                      (next['offlineRecitationSessions'] as List)
+                          .where((session) => session['id'] != raw['id'])
+                          .toList();
+                }),
+              ),
             ),
           ),
         for (final raw in sessions) ...[
