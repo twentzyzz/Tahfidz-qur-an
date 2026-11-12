@@ -8,6 +8,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import '../l10n/app_strings.dart';
 import '../core/theme/app_theme.dart';
 import '../services/app_store.dart';
+import '../services/practice_store.dart';
 import '../services/quran_repository.dart';
 import '../services/player_controller.dart';
 import '../services/prayer_service.dart';
@@ -44,6 +45,9 @@ class _TahfidzAppState extends State<TahfidzApp> {
     try {
       tzdata.initializeTimeZones();
       final s = AppStore(await SharedPreferences.getInstance());
+      if (s.map('goalHistory').isEmpty) {
+        await s.changeDailyGoal(s.get<int>('goal', 5));
+      }
       await quran.initialize();
       final p = PrayerService(s);
       await p.initialize();

@@ -10,6 +10,7 @@ import '../../services/quran_repository.dart';
 import '../../widgets/common.dart';
 import '../../widgets/mini_player.dart';
 import '../qari/qari_page.dart';
+import '../tahfidz/practice_page.dart';
 
 class SurahDetailPage extends StatefulWidget {
   const SurahDetailPage({
@@ -101,6 +102,19 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                       icon: const Icon(Icons.headphones_rounded),
                       label: Text(c.t('Pilih Qari', 'Choose reciter')),
                     ),
+                    if (widget.memorize)
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.push(
+                          c,
+                          MaterialPageRoute<void>(
+                            builder: (_) => PracticePage(
+                              verses: verses.sublist(start - 1, end),
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.quiz_outlined),
+                        label: Text(c.t('Ujian rentang', 'Test this range')),
+                      ),
                     DropdownButton<int>(
                       value: repeat,
                       items: [1, 3, 5, 10]
