@@ -86,4 +86,21 @@ Runner memakai model sungguhan, mencatat WER, CER, durasi, kegagalan input, dan 
 
 ## Status bukti
 
+### Tes integrasi Android yang dapat diulang
+
+Jalankan emulator, pilih ID dari `flutter devices`, lalu ganti `<device-id>` di bawah. `adb` tersedia di folder `platform-tools` Android SDK; tambahkan folder itu ke PATH Terminal Android Studio bila diperlukan.
+
+```sh
+flutter build apk --debug
+adb -s <device-id> install -r build/app/outputs/flutter-apk/app-debug.apk
+adb -s <device-id> shell cmd connectivity airplane-mode enable
+adb -s <device-id> shell svc wifi disable
+adb -s <device-id> shell svc data disable
+flutter test integration_test/offline_native_test.dart -d <device-id>
+adb -s <device-id> shell pm grant id.tahfidz.tahfidz_quran android.permission.RECORD_AUDIO
+flutter test integration_test/offline_microphone_test.dart -d <device-id>
+```
+
+Tes native menjalankan decoder model bundel pada sinyal sintetis dan menavigasi layar AI. Tes mikrofon memakai plugin Android sungguhan untuk rekam, stop, putar, proses, serta hapus audio. Pemberian izin via ADB hanya untuk tes otomatis; aplikasi tetap meminta izin saat pengguna menekan Mulai rekam. Uji penolakan izin secara manual dengan mencabut izin terlebih dahulu. Suara emulator, terutama jika audio host dimatikan, tidak membuktikan mikrofon HP atau akurasi tilawah.
+
 Hasil akhir analyze/test/build/emulator dicatat dalam `OFFLINE_VALIDATION.md`. Pengujian mikrofon nyata, dataset Quran berizin, dan setidaknya satu HP fisik tetap wajib sebelum menyatakan kriteria penerimaan produk terpenuhi. Tidak ada perangkat fisik tersambung pada sesi cloud ini.
