@@ -65,6 +65,25 @@ void main() {
         await device.dispose();
       }
       expect(await file.exists(), isFalse);
+      // Exercise the real Android navigation and asset preparation as well as
+      // the native decoder. This does not request microphone permission.
+      await tester.tap(find.text('Mulai Menghafal'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Al-Fatihah');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, 'Al-Fatihah'));
+      await tester.pumpAndSettle();
+      final entry = find.text('Latihan dengan AI Offline');
+      await tester.ensureVisible(entry);
+      await tester.pumpAndSettle();
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+      expect(find.text('AI Koreksi Hafalan Offline'), findsOneWidget);
+      expect(find.text('Mulai rekam'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(entry, findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     },
     timeout: const Timeout(Duration(minutes: 8)),
