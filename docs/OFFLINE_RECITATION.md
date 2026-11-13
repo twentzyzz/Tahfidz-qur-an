@@ -35,6 +35,8 @@ flutter build apk --release
 
 Python 3.10+ diperlukan hanya untuk menyiapkan aset saat pengembangan/build, bukan ketika aplikasi dipakai. Script tidak mengekstrak jalur arbitrer dari arsip, hanya tiga berkas yang sudah ditentukan. Mengulang script memeriksa aset yang ada dan melewati unduhan jika checksum cocok.
 
+Saat berpindah antara debug, integration test, dan release, gunakan perintah Flutter standar di atas tanpa `--no-pub`. Flutter 3.47.9 perlu memperbarui registrasi plugin sesuai mode; melewati langkah itu setelah build debug dapat meninggalkan referensi `integration_test` yang tidak disertakan dalam release. Jangan mengedit `GeneratedPluginRegistrant.java` secara manual.
+
 Toolchain proyek: Flutter **3.47.9**, Dart **3.13.7**, JDK **17**, Gradle **9.3.1**, AGP **9.1.0**, Kotlin **2.4.0**, NDK **28.2.13676358**, CMake **3.22.1**, compile SDK aplikasi **36**. Plugin yang terkunci juga membutuhkan platform SDK **34/35**, di samping **36**. Pasang lewat SDK Manager Android Studio. Application ID tetap `id.tahfidz.tahfidz_quran`; konfigurasi Gradle/signing aplikasi tidak sengaja diganti. Release masih menggunakan debug signing proyek untuk pengujian pribadi, bukan distribusi Play Store.
 
 ## Arsitektur dan privasi

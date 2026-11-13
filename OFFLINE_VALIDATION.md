@@ -6,6 +6,7 @@ Branch: `feat/offline-recitation-prd`, dibangun di atas main `012df22`, dengan f
 
 - Flutter 3.47.9 / Dart 3.13.7; `flutter analyze --no-pub` bersih.
 - `flutter build apk --debug --no-pub`: **lulus**. APK dengan aset model bundel berukuran sekitar 302 MiB. JDK 17, SDK 34/35/36, build-tools 35/36, NDK 28.2.13676358, dan CMake 3.22.1 terpasang. Konfigurasi Gradle proyek tidak diubah.
+- `flutter build apk --release`: **lulus**, ukuran yang dilaporkan Flutter 201,4 MB. Masih menggunakan debug signing bawaan proyek untuk pengujian, bukan signing distribusi.
 - **41 tes unit/widget lulus**, mencakup regresi fitur lama, P0, normalisasi, alignment, quality gate, izin ditolak, pembersihan audio, pembatalan inferensi/izin yang masih menunggu, checksum model, pembatasan ukuran input, serta penyimpanan ringkasan tanpa transkrip/audio. Tes perangkat memakai fake adapter dan tidak dianggap sebagai pengujian mikrofon Android.
 - `flutter build web --no-pub --no-web-resources-cdn`: lulus untuk menjaga target Web lama; ini tidak memvalidasi plugin ASR Android.
 - Arsip dan tiga berkas model resmi diverifikasi checksum. Persiapan model diulang dan mengenali aset yang sudah valid tanpa mengunduh lagi.
@@ -17,7 +18,7 @@ Branch: `feat/offline-recitation-prd`, dibangun di atas main `012df22`, dengan f
 ## Belum selesai / hambatan yang diamati
 
 - Hambatan unduhan CMake telah teratasi. Koneksi Maven pada mesin cloud memakai cache Gradle dengan `systemProp.org.gradle.internal.http.idleConnectionTimeout=1` untuk menghindari kegagalan penggunaan ulang koneksi proxy. TLS/sertifikat/checksum tidak dinonaktifkan; pengaturan khusus cloud ini tidak masuk konfigurasi Gradle proyek.
-- Build release sedang divalidasi dan belum diklaim lulus.
+- Percobaan release dengan `--no-pub` setelah debug gagal karena registrasi `integration_test` yang tertinggal. Perintah release standar memperbarui registrasi plugin otomatis dan berhasil; tidak ada edit manual pada registrant atau perubahan Gradle aplikasi.
 - Emulator Android API 35 x86_64 berhasil diluncurkan dengan software emulation (KVM tidak tersedia), ADB mendeteksi perangkat. APK fitur baru belum dipasang, sehingga UI Android dan inferensi Android belum diklaim teruji.
 - `integration_test/offline_native_test.dart` disiapkan untuk memuat model sungguhan, decode input sintetis, memeriksa pembersihan resource, dan menavigasi layar AI. `offline_microphone_test.dart` memakai plugin Android untuk rekam/putar/proses/hapus. Kedua tes integrasi belum diklaim lulus. Input sintetis tidak membuktikan kualitas bacaan manusia.
 - Tidak ada HP fisik terhubung. Mikrofon nyata, mode pesawat Android, performa HP, noise dunia nyata, dan tekanan memori belum diuji.
