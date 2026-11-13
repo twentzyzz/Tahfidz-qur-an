@@ -71,7 +71,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (index == 0) ...[
-              Image.asset('assets/branding/logo.png', width: 38, height: 38),
+              SizedBox.square(
+                dimension: 38,
+                child: Image.asset(
+                  'assets/branding/logo.png',
+                  cacheWidth: (38 * MediaQuery.devicePixelRatioOf(c)).ceil(),
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const Icon(Icons.menu_book_rounded),
+                ),
+              ),
               const SizedBox(width: 10),
             ],
             Flexible(
