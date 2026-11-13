@@ -24,7 +24,9 @@ void main() {
       final temp = await getTemporaryDirectory();
       final file = File('${temp.path}/native-smoke.wav');
       try {
+        final prepareWatch = Stopwatch()..start();
         await device.prepare();
+        debugPrint('Model preparation: ${prepareWatch.elapsedMilliseconds} ms');
         const count = 32000;
         final bytes = ByteData(44 + count * 2);
         void ascii(int offset, String value) {
@@ -54,7 +56,9 @@ void main() {
           );
         }
         await file.writeAsBytes(bytes.buffer.asUint8List());
+        final decodeWatch = Stopwatch()..start();
         final result = await device.recognize(file.path);
+        debugPrint('Native decode: ${decodeWatch.elapsedMilliseconds} ms');
         expect(result.model, 'whisper-tiny-int8-sherpa-2024-07-13');
         expect(result.qualityValidated, isFalse);
         // Tone passes the amplitude gate; the real decoder must run. Its output
