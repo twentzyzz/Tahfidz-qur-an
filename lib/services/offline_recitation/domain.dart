@@ -62,6 +62,15 @@ AlignmentResult alignRecitation(
       [],
     );
   }
+  // An uncalibrated transcript cannot justify word-level feedback. Return
+  // before allocating the alignment matrix or doing work on the UI isolate.
+  if (!recognition.qualityValidated) {
+    return const AlignmentResult(
+      RecitationStatus.unassessed,
+      'qualityNotValidated',
+      [],
+    );
+  }
   final costs = List.generate(
     expected.length + 1,
     (i) => List.generate(
@@ -102,14 +111,6 @@ AlignmentResult alignRecitation(
         ),
       );
     }
-  }
-  // A lexical match is not evidence that the ASR or the recitation is correct.
-  if (!recognition.qualityValidated) {
-    return const AlignmentResult(
-      RecitationStatus.unassessed,
-      'qualityNotValidated',
-      [],
-    );
   }
   return AlignmentResult(
     differences.isEmpty
