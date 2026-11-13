@@ -40,9 +40,14 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+/android/build/
 /android/app/debug
 /android/app/profile
 /android/app/release
 
 # Widget Preview related
 .widget_preview/
+
+# Downloaded, checksum-verified offline ASR assets (see tool/prepare_offline_model.py).
+/assets/models/whisper_tiny/*.onnx
+/assets/models/whisper_tiny/tiny-tokens.txt

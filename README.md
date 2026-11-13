@@ -57,6 +57,20 @@ web/                       target browser
 .github/workflows/blank.yml pipeline APK yang dipertahankan
 ```
 
+## Latihan AI offline (eksperimental)
+
+Halaman Hafalan menyediakan **Latihan dengan AI Offline** untuk rentang ayat yang dipilih. Rekaman diproses oleh Whisper Tiny multilingual int8 melalui sherpa-onnx di perangkat Android, tanpa API AI atau backend. Rekaman dihapus setelah proses; ringkasan lokal hanya disimpan atas persetujuan pengguna.
+
+**Kualitas tilawah belum tervalidasi.** Versi ini menampilkan transkrip nyata dengan status **Belum dapat dinilai**, bukan skor atau koreksi tajwid yang pasti. Lihat [panduan model, privasi, dan Android Studio Windows](docs/OFFLINE_RECITATION.md) serta [hasil validasi dan keterbatasan](OFFLINE_VALIDATION.md).
+
+Sebelum build, siapkan aset model terverifikasi (Python 3.10+; sekitar 100 MB aset dibundel ke APK):
+
+```sh
+python tool/prepare_offline_model.py
+```
+
+GitHub Actions menjalankan persiapan ini secara otomatis. Bobot tidak disimpan dalam Git. Target harian, kalender, murajaah 1/3/7 hari, dan ujian manual tetap tersedia tanpa AI; detailnya ada di [P0_VALIDATION.md](P0_VALIDATION.md).
+
 ## Mengembangkan dan menguji
 
 Di Codex Cloud gunakan checkout yang tersedia; tiap tugas sudah terisolasi, tidak perlu Git worktree baru. Flutter stable yang dipatok workflow: **3.47.9**, Dart **3.13.7**, Java **17** untuk Android. SDK pada sesi pengembangan tersedia di `/workspace/tools/flutter/bin`; lokasi ini tidak dijamin ada di mesin baru.

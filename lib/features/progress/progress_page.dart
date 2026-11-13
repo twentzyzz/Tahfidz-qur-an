@@ -1,4 +1,6 @@
 import '../../widgets/weekly_progress.dart';
+import '../../services/practice_store.dart';
+import 'practice_calendar.dart';
 import '../surah/surah_detail_page.dart';
 
 import 'package:flutter/material.dart';
@@ -18,17 +20,8 @@ class ProgressPage extends StatelessWidget {
         (e) => Map<String, dynamic>.from(e as Map),
       ),
     );
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final daily = history
-        .where(
-          (h) =>
-              h['status'] == 'done' &&
-              p[h['ref']] == 'done' &&
-              (h['time'] as String).startsWith(today),
-        )
-        .map((h) => h['ref'])
-        .toSet()
-        .length;
+    final daily =
+        (s.store.dailyRecord(DateTime.now())['refs'] as List? ?? []).length;
     return padded([
       Card(
         child: Padding(
@@ -79,7 +72,22 @@ class ProgressPage extends StatelessWidget {
               ),
             )
             .toList(),
-        onChanged: (v) => perform(c, () => s.store.set('goal', v)),
+        onChanged: (v) => perform(c, () => s.store.changeDailyGoal(v!)),
+      ),
+      Text(
+        daily >= s.store.get<int>('goal', 5)
+            ? c.t('Target hari ini tercapai', "Today's goal reached")
+            : c.t('Target hari ini belum tercapai', "Today's goal not reached"),
+      ),
+      OutlinedButton.icon(
+        onPressed: () => Navigator.push(
+          c,
+          MaterialPageRoute<void>(builder: (_) => const PracticeCalendar()),
+        ),
+        icon: const Icon(Icons.calendar_month),
+        label: Text(
+          c.t('Kalender & hasil latihan', 'Calendar & practice results'),
+        ),
       ),
       const SizedBox(height: 24),
       WeeklyProgress(
