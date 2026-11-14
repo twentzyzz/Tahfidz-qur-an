@@ -13,15 +13,17 @@ Branch: `feat/offline-recitation-prd`, dibangun di atas main `012df22`, dengan f
 - Inferensi native Linux memakai worker yang sama dengan implementasi Android berhasil menghasilkan keluaran model nyata. Sampel Inggris bawaan arsip sherpa dipakai sebagai negative control dengan bahasa `ar`; keluarannya keliru, sehingga tidak menjadi bukti akurasi Quran. Tidak mendistribusikan ulang sampel tersebut.
 - Pada smoke test native: sekitar 1,6–2,2 detik untuk satu sampel, maximum child RSS 465.684 KiB. Angka ini tidak memprediksi performa HP.
 - Trace syscall `connect/sendto` pada smoke test tidak berisi koneksi IP. Audio hening dan saturasi sintetis menghasilkan alasan `silence` dan `clipped`.
+- **Tes integrasi native Android lulus** pada emulator API 35 x86_64, software emulation tanpa KVM, RAM AVD 2 GB. Mode pesawat aktif, Wi-Fi mati, dan `dumpsys connectivity` menunjukkan `Active default network: none`. Model nyata memproses sinyal sintetis, berkas sementara dihapus, layar AI dibuka dari Hafalan/Al-Fatihah, dan navigasi kembali berhasil tanpa exception.
+- Pada percobaan emulator tersebut, verifikasi model sekitar 19,8 detik dan decode sintetis sekitar 195,5 detik; total tes sekitar 5 menit 29 detik. Ini bukti fungsi, bukan klaim performa HP atau akurasi tilawah.
+- Percobaan Android pertama menemukan kegagalan decode logo dan overflow header beranda. Logo tetap dipertahankan, ukuran decode dibatasi sesuai layar, dan ikon cadangan ditampilkan bila decoder gagal. Setelah perbaikan, 41 tes unit/widget dan pengulangan integrasi native lulus.
 - Model produksi tidak mengaktifkan `qualityValidated`. Tidak ada hasil AI palsu, skor acak, atau penanda kata pasti salah. Status hasil tetap **Belum dapat dinilai** hingga ada kalibrasi dan dataset Quran yang memadai.
 
 ## Belum selesai / hambatan yang diamati
 
 - Hambatan unduhan CMake telah teratasi. Koneksi Maven pada mesin cloud memakai cache Gradle dengan `systemProp.org.gradle.internal.http.idleConnectionTimeout=1` untuk menghindari kegagalan penggunaan ulang koneksi proxy. TLS/sertifikat/checksum tidak dinonaktifkan; pengaturan khusus cloud ini tidak masuk konfigurasi Gradle proyek.
 - Percobaan release dengan `--no-pub` setelah debug gagal karena registrasi `integration_test` yang tertinggal. Perintah release standar memperbarui registrasi plugin otomatis dan berhasil; tidak ada edit manual pada registrant atau perubahan Gradle aplikasi.
-- Emulator Android API 35 x86_64 berhasil diluncurkan dengan software emulation (KVM tidak tersedia), ADB mendeteksi perangkat. APK fitur baru belum dipasang, sehingga UI Android dan inferensi Android belum diklaim teruji.
-- `integration_test/offline_native_test.dart` disiapkan untuk memuat model sungguhan, decode input sintetis, memeriksa pembersihan resource, dan menavigasi layar AI. `offline_microphone_test.dart` memakai plugin Android untuk rekam/putar/proses/hapus. Kedua tes integrasi belum diklaim lulus. Input sintetis tidak membuktikan kualitas bacaan manusia.
-- Tidak ada HP fisik terhubung. Mikrofon nyata, mode pesawat Android, performa HP, noise dunia nyata, dan tekanan memori belum diuji.
+- `integration_test/offline_microphone_test.dart` sedang divalidasi untuk rekam/putar/proses/hapus menggunakan plugin Android. Belum diklaim lulus. Tes native yang sudah lulus menggunakan input sintetis, bukan bacaan manusia.
+- Tidak ada HP fisik terhubung. Mikrofon fisik, performa HP, noise dunia nyata, dan pengujian tekanan memori belum dilakukan. Mode pesawat sudah diuji pada emulator.
 - Dataset Quran berizin dan anotasi pengajar belum tersedia. WER/CER, false-positive rate, dan ambang confidence untuk Quran belum diukur. Evaluator lokal tersedia; nilai yang tidak memiliki denominator atau verdict valid ditampilkan `null`, bukan 0%.
 - Branch `feat/offline-recitation-prd` sudah berhasil di-push ke GitHub. PR belum dibuat.
 - GitHub API ditolak kebijakan jaringan saat percobaan read-only. Penambahan `api.github.com` disimpan dalam draf pengaturan, belum dianggap diterapkan. Status PR harus dikonfirmasi dari hasil pembuatan PR, bukan dari adanya branch lokal.

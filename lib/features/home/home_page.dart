@@ -77,7 +77,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   'assets/branding/logo.png',
                   cacheWidth: (38 * MediaQuery.devicePixelRatioOf(c)).ceil(),
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Icon(Icons.menu_book_rounded),
+                  errorBuilder: (_, _, _) =>
+                      const Icon(Icons.menu_book_rounded),
                 ),
               ),
               const SizedBox(width: 10),
