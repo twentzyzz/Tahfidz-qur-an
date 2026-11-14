@@ -35,6 +35,8 @@ flutter build apk --release
 
 Python 3.10+ diperlukan hanya untuk menyiapkan aset saat pengembangan/build, bukan ketika aplikasi dipakai. Script tidak mengekstrak jalur arbitrer dari arsip, hanya tiga berkas yang sudah ditentukan. Mengulang script memeriksa aset yang ada dan melewati unduhan jika checksum cocok.
 
+Saat berpindah antara debug, integration test, dan release, gunakan perintah Flutter standar di atas tanpa `--no-pub`. Flutter 3.47.9 perlu memperbarui registrasi plugin sesuai mode; melewati langkah itu setelah build debug dapat meninggalkan referensi `integration_test` yang tidak disertakan dalam release. Jangan mengedit `GeneratedPluginRegistrant.java` secara manual.
+
 Toolchain proyek: Flutter **3.47.9**, Dart **3.13.7**, JDK **17**, Gradle **9.3.1**, AGP **9.1.0**, Kotlin **2.4.0**, NDK **28.2.13676358**, CMake **3.22.1**, compile SDK aplikasi **36**. Plugin yang terkunci juga membutuhkan platform SDK **34/35**, di samping **36**. Pasang lewat SDK Manager Android Studio. Application ID tetap `id.tahfidz.tahfidz_quran`; konfigurasi Gradle/signing aplikasi tidak sengaja diganti. Release masih menggunakan debug signing proyek untuk pengujian pribadi, bukan distribusi Play Store.
 
 ## Arsitektur dan privasi
@@ -96,11 +98,13 @@ adb -s <device-id> install -r build/app/outputs/flutter-apk/app-debug.apk
 adb -s <device-id> shell cmd connectivity airplane-mode enable
 adb -s <device-id> shell svc wifi disable
 adb -s <device-id> shell svc data disable
-flutter test integration_test/offline_native_test.dart -d <device-id>
+flutter test integration_test/offline_native_test.dart -d <device-id> --no-uninstall
 adb -s <device-id> shell pm grant id.tahfidz.tahfidz_quran android.permission.RECORD_AUDIO
-flutter test integration_test/offline_microphone_test.dart -d <device-id>
+flutter test integration_test/offline_microphone_test.dart -d <device-id> --no-uninstall
 ```
 
 Tes native menjalankan decoder model bundel pada sinyal sintetis dan menavigasi layar AI. Tes mikrofon memakai plugin Android sungguhan untuk rekam, stop, putar, proses, serta hapus audio. Pemberian izin via ADB hanya untuk tes otomatis; aplikasi tetap meminta izin saat pengguna menekan Mulai rekam. Uji penolakan izin secara manual dengan mencabut izin terlebih dahulu. Suara emulator, terutama jika audio host dimatikan, tidak membuktikan mikrofon HP atau akurasi tilawah.
+
+Flutter menghapus aplikasi setelah tes secara default. `--no-uninstall` mempertahankan paket agar perintah pemberian izin menemukan aplikasi. Jika hanya menjalankan tes mikrofon, pasang APK debug dahulu sebelum `pm grant`; tes akan langsung melaporkan izin yang belum tersedia. Sesudah pengujian, jalankan `flutter run` untuk kembali ke aplikasi biasa.
 
 Hasil akhir analyze/test/build/emulator dicatat dalam `OFFLINE_VALIDATION.md`. Pengujian mikrofon nyata, dataset Quran berizin, dan setidaknya satu HP fisik tetap wajib sebelum menyatakan kriteria penerimaan produk terpenuhi. Tidak ada perangkat fisik tersambung pada sesi cloud ini.
