@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Header beranda tetap stabil jika decoder gambar Android gagal: ukuran decode logo dibatasi dan ikon cadangan tersedia.
+- Build debug/release dan dua tes integrasi Android offline tervalidasi; panduan tes mikrofon menjelaskan izin dan `--no-uninstall`.
+
 - Kalender target hafalan harian dengan riwayat pencapaian yang tetap ada setelah reset ayat.
 - Murajaah terjadwal berdasarkan penilaian manual dengan interval 1/3/7 hari.
 - Ujian manual pada rentang ayat: sembunyikan teks dan sambung ayat, ringkasan hasil, serta pembatalan.
