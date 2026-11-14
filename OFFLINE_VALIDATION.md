@@ -8,6 +8,7 @@ Fitur utama sudah digabung melalui PR #5 pada main `5d96a3e`. Perbaikan dan vali
 - `flutter build apk --debug`: **lulus**, termasuk build ulang setelah perbaikan header. APK dengan aset model bundel berukuran sekitar 302 MiB. JDK 17, SDK 34/35/36, build-tools 35/36, NDK 28.2.13676358, dan CMake 3.22.1 terpasang. Konfigurasi Gradle proyek tidak diubah.
 - `flutter build apk --release`: **lulus**, ukuran yang dilaporkan Flutter 201,4 MB. Masih menggunakan debug signing bawaan proyek untuk pengujian, bukan signing distribusi.
 - APK release terakhir lolos `apksigner verify`. Application ID tetap `id.tahfidz.tahfidz_quran`, min SDK 24, target/compile SDK 36, dan ABI `arm64-v8a`, `armeabi-v7a`, serta `x86_64` tersedia. Build diuji di Linux cloud; panduan Android Studio Windows tersedia, tetapi host Windows tidak diuji langsung.
+- APK release terakhir juga berhasil dipasang dan dibuka melalui `am start -W` dengan status `ok`. Pada emulator software sempat muncul dialog launcher sistem **Quickstep isn't responding** di atas beranda; ini dicatat sebagai keterbatasan lingkungan emulator, bukan bukti stabilitas/performa HP.
 - **41 tes unit/widget lulus**, mencakup regresi fitur lama, P0, normalisasi, alignment, quality gate, izin ditolak, pembersihan audio, pembatalan inferensi/izin yang masih menunggu, checksum model, pembatasan ukuran input, serta penyimpanan ringkasan tanpa transkrip/audio. Tes perangkat memakai fake adapter dan tidak dianggap sebagai pengujian mikrofon Android.
 - `flutter build web --no-pub --no-web-resources-cdn`: lulus untuk menjaga target Web lama; ini tidak memvalidasi plugin ASR Android.
 - Arsip dan tiga berkas model resmi diverifikasi checksum. Persiapan model diulang dan mengenali aset yang sudah valid tanpa mengunduh lagi.
@@ -25,7 +26,7 @@ Fitur utama sudah digabung melalui PR #5 pada main `5d96a3e`. Perbaikan dan vali
 - Tidak ada HP fisik terhubung. Mikrofon fisik, performa HP, noise dunia nyata, dan pengujian tekanan memori belum dilakukan. Mode pesawat sudah diuji pada emulator.
 - Dataset Quran berizin dan anotasi pengajar belum tersedia. WER/CER, false-positive rate, dan ambang confidence untuk Quran belum diukur. Evaluator lokal tersedia; nilai yang tidak memiliki denominator atau verdict valid ditampilkan `null`, bukan 0%.
 - Perubahan lanjutan sudah di-push ke `fix/offline-recitation-android-validation`. PR lanjutan belum dibuat; PR #5 untuk fitur utama sudah digabung.
-- GitHub API ditolak kebijakan jaringan saat percobaan read-only. Penambahan `api.github.com` disimpan dalam draf pengaturan, belum dianggap diterapkan. Status PR harus dikonfirmasi dari hasil pembuatan PR, bukan dari adanya branch lokal.
+- Percobaan `gh pr create --draft` untuk branch lanjutan gagal dengan `Post "https://api.github.com/graphql": Forbidden`. Penambahan `api.github.com` tersimpan dalam draf pengaturan, tetapi belum ada pada kebijakan jaringan aktif. Isi PR sudah disiapkan; PR lanjutan belum tercipta.
 
 ## Melanjutkan validasi
 
