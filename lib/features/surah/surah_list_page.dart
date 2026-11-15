@@ -146,11 +146,21 @@ class JuzPage extends StatelessWidget {
             );
           }
           final i = item - 1;
-          return Material(
-            color: Theme.of(c).colorScheme.surface,
-            child: Column(
-              children: [
-                ListTile(
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Material(
+              color: Theme.of(c).colorScheme.surface,
+              elevation: 1,
+              shadowColor: const Color(0xFFBFA878).withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(c).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: ListTile(
                   key: ValueKey('juz-${i + 1}'),
                   contentPadding: const EdgeInsets.all(12),
                   leading: CatalogNumber(i + 1),
@@ -160,7 +170,15 @@ class JuzPage extends StatelessWidget {
                     child: Text(
                       '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
                       '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
+                      style: TextStyle(
+                        height: 1.55,
+                        color: Theme.of(c).colorScheme.onSurfaceVariant,
+                      ),
                     ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: Theme.of(c).colorScheme.primary,
                   ),
                   onTap: () => Navigator.push(
                     c,
@@ -169,8 +187,8 @@ class JuzPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Divider(height: 1),
-              ],
+                ),
+              ),
             ),
           );
         },
