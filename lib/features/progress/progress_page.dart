@@ -25,7 +25,22 @@ class ProgressPage extends StatelessWidget {
     return padded([
       Container(
         width: double.infinity,
-        decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF075944), Color(0xFF087F5B)]), borderRadius: BorderRadius.circular(24)),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF064735), Color(0xFF087F5B)],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFC5A064), width: 1.4),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF064735).withValues(alpha: .16),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
