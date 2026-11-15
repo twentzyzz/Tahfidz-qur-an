@@ -183,7 +183,6 @@ class _SurahRow extends StatelessWidget {
                   ),
                 ),
               ),
-              ),
             ),
           ),
         );
