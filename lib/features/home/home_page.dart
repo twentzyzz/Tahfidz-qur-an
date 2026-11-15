@@ -1,6 +1,5 @@
 import '../../core/constants/app_icons.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_radius.dart';
 import '../../services/player_controller.dart';
 
@@ -66,11 +65,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     const selected = AppIcons.selectedNavigation;
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 68,
+        toolbarHeight: 68 +
+            (MediaQuery.textScalerOf(c).scale(20) - 20).clamp(0, 80) * 2,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (index == 0) ...[
+            if (index == 0 &&
+                MediaQuery.sizeOf(c).width >= 380 &&
+                MediaQuery.textScalerOf(c).scale(16) <= 20) ...[
               SizedBox.square(
                 dimension: 38,
                 child: Image.asset(
@@ -86,8 +88,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             Flexible(
               child: Text(
                 index == 0 ? 'Tahfidz Quran' : labels[index],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
@@ -107,63 +108,46 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           const SizedBox(width: 8),
         ],
       ),
-      body: IndexedStack(
-        index: index,
-        children: [
-          _Dashboard(
-            onSurahs: () => setState(() => index = 1),
-            onJuz: () => setState(() => index = 2),
-            onMemorize: () => setState(() => index = 3),
-            onProgress: () => setState(() => index = 4),
-            onQari: () => open(const QariPage()),
-            onPrayer: () => open(const PrayerPage()),
-            onResume: (surah, verse) => open(
-              SurahDetailPage(
-                number: surah,
-                initialVerse: verse,
-                memorize: true,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: IndexedStack(
+          index: index,
+          children: [
+            _Dashboard(
+              onSurahs: () => setState(() => index = 1),
+              onJuz: () => setState(() => index = 2),
+              onMemorize: () => setState(() => index = 3),
+              onProgress: () => setState(() => index = 4),
+              onQari: () => open(const QariPage()),
+              onPrayer: () => open(const PrayerPage()),
+              onResume: (surah, verse) => open(
+                SurahDetailPage(
+                  number: surah,
+                  initialVerse: verse,
+                  memorize: true,
+                ),
               ),
+              onDetail: (surah, verse) =>
+                  open(SurahDetailPage(number: surah, initialVerse: verse)),
             ),
-            onDetail: (surah, verse) =>
-                open(SurahDetailPage(number: surah, initialVerse: verse)),
-          ),
-          const SurahListPage(),
-          const JuzPage(),
-          const TahfidzPage(),
-          const ProgressPage(),
-        ],
+            const SurahListPage(),
+            const JuzPage(),
+            const TahfidzPage(),
+            const ProgressPage(),
+          ],
+        ),
       ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const MiniPlayer(),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth < 500) {
-                return _CompactBottomNavigation(
-                  labels: labels,
-                  outline: outline,
-                  selected: selected,
-                  index: index,
-                  onSelected: (i) => setState(() => index = i),
-                );
-              }
-              return NavigationBar(
-                height: 74,
-                elevation: 0,
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                selectedIndex: index,
-                onDestinationSelected: (i) => setState(() => index = i),
-                destinations: [
-                  for (var i = 0; i < 5; i++)
-                    NavigationDestination(
-                      icon: Icon(outline[i]),
-                      selectedIcon: Icon(selected[i]),
-                      label: labels[i],
-                    ),
-                ],
-              );
-            },
+          _CompactBottomNavigation(
+            labels: labels,
+            outline: outline,
+            selected: selected,
+            index: index,
+            onSelected: (i) => setState(() => index = i),
           ),
         ],
       ),
@@ -215,11 +199,12 @@ class _Dashboard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 850),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.xl,
-            AppSpacing.md,
-            AppSpacing.xl,
-            AppSpacing.xxl,
+          key: const PageStorageKey('home-dashboard'),
+          padding: EdgeInsets.fromLTRB(
+            MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
+            16,
+            MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
+            32,
           ),
           children: [
             Text(
@@ -230,8 +215,8 @@ class _Dashboard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               context.t(
-                'Temukan ritme hafalanmu.',
-                'Find your memorization rhythm.',
+                'Ruang hafalanmu',
+                'Your memorization space',
               ),
               style: Theme.of(context).textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4),
@@ -252,20 +237,19 @@ class _Dashboard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.t('LANJUTKAN HAFALAN', 'CONTINUE MEMORIZING'),
+                    context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
-                      color: AppColors.gold,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.5,
+                      color: Color(0xFFD5E8DF),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     chapter?.name ??
                         context.t(
-                          'Satu ayat, satu langkah.',
-                          'One verse, one step.',
+                          'Mulai dari satu ayat',
+                          'Begin with one verse',
                         ),
                     style: Theme.of(context).textTheme.headlineSmall
                         ?.copyWith(color: Colors.white),
@@ -275,8 +259,8 @@ class _Dashboard extends StatelessWidget {
                     hasMemo
                         ? '${context.t('Ayat', 'Verse')} ${memo['verse']} · $chapterDone / ${chapter!.count} ${context.t('ayat hafal', 'memorized')}'
                         : context.t(
-                            'Bangun kebiasaan baik, mulai dari ayat pertama.',
-                            'Build a gentle habit, starting with the first verse.',
+                            'Pilih surah, dengarkan, lalu ulangi sesuai ritmemu.',
+                            'Choose a surah, listen, and repeat at your own pace.',
                           ),
                     style: const TextStyle(
                       color: Color(0xFFD5E8DF),
@@ -303,7 +287,7 @@ class _Dashboard extends StatelessWidget {
                             memo['verse'] as int,
                           )
                         : onMemorize,
-                    icon: const Icon(Icons.arrow_forward_rounded),
+                    icon: const Icon(Icons.bookmark_outline_rounded),
                     label: Text(
                       hasMemo
                           ? context.t('Lanjutkan', 'Continue')
@@ -313,54 +297,8 @@ class _Dashboard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              context.t('Akses cepat', 'Quick access'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _Shortcut(
-                    icon: Icons.menu_book_rounded,
-                    title: context.t('Daftar Surah', 'Surah list'),
-                    onTap: onSurahs,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _Shortcut(
-                    icon: Icons.auto_stories_rounded,
-                    title: '30 Juz',
-                    onTap: onJuz,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _Shortcut(
-                    icon: Icons.headphones_rounded,
-                    title: context.t('Audio Murottal', 'Quran audio'),
-                    onTap: onQari,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _Shortcut(
-                    icon: Icons.bookmark_border_rounded,
-                    title: context.t('Latihan Hafalan', 'Memorize'),
-                    onTap: onMemorize,
-                  ),
-                ),
-              ],
-            ),
             if (last['surah'] is int && last['verse'] is int) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: 16),
               Card(
                 margin: EdgeInsets.zero,
                 child: ListTile(
@@ -375,15 +313,65 @@ class _Dashboard extends StatelessWidget {
                   subtitle: Text(
                     '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
                   ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                  ),
                   onTap: () =>
                       onDetail(last['surah'] as int, last['verse'] as int),
                 ),
               ),
             ],
+            const SizedBox(height: 24),
+            Text(
+              context.t('Baca & dengarkan', 'Read & listen'),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final singleColumn = constraints.maxWidth < 420 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 20;
+                final width = singleColumn
+                    ? constraints.maxWidth
+                    : (constraints.maxWidth - 16) / 2;
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.menu_book_rounded,
+                        title: context.t('Daftar Surah', 'Surah list'),
+                        onTap: onSurahs,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.auto_stories_rounded,
+                        title: '30 Juz',
+                        onTap: onJuz,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.headphones_rounded,
+                        title: context.t('Audio Murottal', 'Quran audio'),
+                        onTap: onQari,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.bookmark_border_rounded,
+                        title: context.t('Latihan Hafalan', 'Memorize'),
+                        onTap: onMemorize,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
             const SizedBox(height: 22),
             Card(
               margin: EdgeInsets.zero,
@@ -392,17 +380,18 @@ class _Dashboard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            context.t(
-                              'Progres Hafalan',
-                              'Memorization progress',
-                            ),
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                        Text(
+                          context.t(
+                            'Progres Hafalan',
+                            'Memorization progress',
                           ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         Text(
                           '${(done / 6236 * 100).toStringAsFixed(1)}%',
@@ -425,10 +414,9 @@ class _Dashboard extends StatelessWidget {
                     ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: TextButton.icon(
+                      child: TextButton(
                         onPressed: onProgress,
-                        icon: const Icon(Icons.arrow_forward_rounded),
-                        label: Text(
+                        child: Text(
                           context.t('Lihat progres', 'View progress'),
                         ),
                       ),
@@ -468,7 +456,6 @@ class _Dashboard extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: QariAvatar(name: qaris[id]!),
                 title: Text(qaris[id]!),
-                trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: onQari,
               ),
             const SizedBox(height: 20),
@@ -492,7 +479,6 @@ class _Dashboard extends StatelessWidget {
                   '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
                 ),
                 leading: const Icon(Icons.bookmark_outline_rounded),
-                trailing: const Icon(Icons.chevron_right),
                 onTap: () => onDetail(
                   int.parse(ref.split(':')[0]),
                   int.parse(ref.split(':')[1]),
@@ -518,26 +504,21 @@ class _Shortcut extends StatelessWidget {
   Widget build(BuildContext c) {
     final cs = Theme.of(c).colorScheme;
     return Material(
-      color: cs.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: cs.outlineVariant),
-      ),
-      clipBehavior: Clip.antiAlias,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 17),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: Row(
             children: [
-              Icon(icon, size: 28, color: cs.primary),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              Icon(icon, size: 24, color: cs.primary),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -569,68 +550,87 @@ class _CompactBottomNavigation extends StatelessWidget {
       color: colors.surface,
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          child: Row(
-            children: [
-              for (var i = 0; i < labels.length; i++)
-                Expanded(
-                  child: Semantics(
-                    button: true,
-                    selected: index == i,
-                    label: labels[i],
-                    child: InkWell(
-                      onTap: () => onSelected(i),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 7),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 180),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: index == i
-                                    ? colors.primaryContainer
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                index == i ? selected[i] : outline[i],
-                                size: 24,
-                                color: index == i
-                                    ? colors.primary
-                                    : colors.onSurfaceVariant,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final largeText = MediaQuery.textScalerOf(context).scale(12) > 16 &&
+                constraints.maxWidth < 600;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Divider(height: 1),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 850),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < labels.length; i++)
+                            Expanded(
+                              child: Semantics(
+                                key: ValueKey('navigation-semantics-$i'),
+                                button: true,
+                                selected: index == i,
+                                label: labels[i],
+                                onTap: () => onSelected(i),
+                                excludeSemantics: true,
+                                child: Tooltip(
+                                  message: labels[i],
+                                  child: InkWell(
+                                    key: ValueKey('navigation-$i'),
+                                    onTap: () => onSelected(i),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(minHeight: 48),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: index == i ? colors.primaryContainer : Colors.transparent,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Icon(
+                                                index == i ? selected[i] : outline[i],
+                                                color: index == i ? colors.primary : colors.onSurfaceVariant,
+                                              ),
+                                            ),
+                                            if (!largeText) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                labels[i],
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: index == i ? FontWeight.w700 : FontWeight.w500,
+                                                  color: index == i ? colors.primary : colors.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 5),
-                            Text(
-                              labels[i],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: index == i
-                                    ? FontWeight.w800
-                                    : FontWeight.w500,
-                                color: index == i
-                                    ? colors.primary
-                                    : colors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
+                if (largeText)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(labels[index], textAlign: TextAlign.center),
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );
