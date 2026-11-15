@@ -7,6 +7,29 @@ import 'package:tahfidz_quran/features/surah/surah_detail_page.dart';
 import 'widget_test.dart' show boot;
 
 void main() {
+  testWidgets('Phase two greeting starts below app bar on a compact phone', (t) async {
+    t.view.physicalSize = const Size(360, 800);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.resetPhysicalSize);
+    addTearDown(t.view.resetDevicePixelRatio);
+    await boot(t);
+
+    final headline = find.byKey(const Key('home-greeting-headline'));
+    expect(headline, findsOneWidget);
+    final appBarBottom = t.getBottomLeft(find.byType(AppBar).first).dy;
+    final headlineTop = t.getTopLeft(headline).dy;
+    expect(headlineTop, greaterThan(appBarBottom));
+    expect(t.takeException(), isNull);
+
+    await t.tap(find.byKey(const ValueKey('navigation-1')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('navigation-0')));
+    await t.pumpAndSettle();
+    expect(find.byKey(const Key('home-greeting-headline')), findsOneWidget);
+    expect(t.takeException(), isNull);
+    await t.pumpWidget(const SizedBox());
+  });
+
   for (final width in [320.0, 390.0, 1024.0]) {
     for (final dark in [false, true]) {
       testWidgets('Phase one at width $width, dark=$dark, text scale 2', (t) async {
