@@ -423,44 +423,96 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: [
-                                for (final status in [
-                                  'learning',
-                                  'done',
-                                  'none',
-                                ])
-                                  ChoiceChip(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 8,
+                            IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  for (final status in [
+                                    'learning',
+                                    'done',
+                                    'none',
+                                  ]) ...[
+                                    if (status != 'learning')
+                                      const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Builder(
+                                        builder: (context) {
+                                          final colors = Theme.of(context).colorScheme;
+                                          final selected =
+                                              s.store.map('progress')[v.ref] == status;
+                                          final label = status == 'done'
+                                              ? c.t('Sudah hafal', 'Memorized')
+                                              : status == 'learning'
+                                                  ? c.t('Sedang dihafal', 'Learning')
+                                                  : c.t('Reset', 'Reset');
+                                          return Material(
+                                            color: selected
+                                                ? colors.primaryContainer
+                                                : colors.surface,
+                                            borderRadius: BorderRadius.circular(14),
+                                            child: InkWell(
+                                              onTap: () => perform(
+                                                c,
+                                                () => s.store.mark(v.ref, status),
+                                              ),
+                                              borderRadius: BorderRadius.circular(14),
+                                              child: Container(
+                                                constraints: const BoxConstraints(minHeight: 66),
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 4,
+                                                  vertical: 10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(14),
+                                                  border: Border.all(
+                                                    color: selected
+                                                        ? colors.primary
+                                                        : colors.outlineVariant,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      status == 'done'
+                                                          ? Icons.check_circle_outline
+                                                          : status == 'learning'
+                                                              ? Icons.bookmark_border_rounded
+                                                              : Icons.restart_alt_rounded,
+                                                      color: selected
+                                                          ? colors.primary
+                                                          : colors.onSurfaceVariant,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      label,
+                                                      textAlign: TextAlign.center,
+                                                      softWrap: true,
+                                                      style: Theme.of(c)
+                                                          .textTheme
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                            color: selected
+                                                                ? colors.primary
+                                                                : colors.onSurface,
+                                                            fontWeight: selected
+                                                                ? FontWeight.w800
+                                                                : FontWeight.w600,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
-                                    avatar: Icon(
-                                      status == 'done'
-                                          ? Icons.check_circle_outline
-                                          : status == 'learning'
-                                              ? Icons.bookmark_border_rounded
-                                              : Icons.restart_alt_rounded,
-                                      size: 17,
-                                    ),
-                                    selected:
-                                        s.store.map('progress')[v.ref] ==
-                                        status,
-                                    label: Text(
-                                      status == 'done'
-                                          ? c.t('Sudah hafal', 'Memorized')
-                                          : status == 'learning'
-                                          ? c.t('Sedang dihafal', 'Learning')
-                                          : c.t('Reset', 'Reset'),
-                                    ),
-                                    onSelected: (_) => perform(
-                                      c,
-                                      () => s.store.mark(v.ref, status),
-                                    ),
-                                  ),
-                              ],
+                                  ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
