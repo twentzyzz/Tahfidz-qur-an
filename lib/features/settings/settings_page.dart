@@ -123,6 +123,20 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
+        Card(
+          child: ListTile(
+          leading: const Icon(Icons.headphones_rounded),
+          title: Text(c.t('Qari & audio', 'Reciter & audio')),
+          subtitle: Text(
+            qaris[s.store.get<String>('qari', '05')] ?? qaris['05']!,
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => Navigator.push(
+            c,
+            MaterialPageRoute<void>(builder: (_) => const QariPage()),
+          ),
+        ),
+        ),
         SectionHeading(c.t('Umum', 'General'), icon: Icons.tune_rounded),
         _SettingsGroup(children: [
         DropdownButtonFormField<String>(
@@ -166,18 +180,7 @@ class _SettingsPageState extends State<SettingsPage> {
           divisions: 8,
           onChanged: (v) => perform(c, () => s.store.set('translationSize', v)),
         ),
-        ListTile(
-          leading: const Icon(Icons.headphones_rounded),
-          title: Text(c.t('Qari & audio', 'Reciter & audio')),
-          subtitle: Text(
-            qaris[s.store.get<String>('qari', '05')] ?? qaris['05']!,
-          ),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => Navigator.push(
-            c,
-            MaterialPageRoute<void>(builder: (_) => const QariPage()),
-          ),
-        ),
+
         ]),
         SectionHeading(c.t('Ibadah', 'Worship'), icon: Icons.mosque_outlined),
         _SettingsGroup(children: [
