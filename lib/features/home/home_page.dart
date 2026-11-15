@@ -224,6 +224,7 @@ class _Dashboard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 height: 1.22,
                 letterSpacing: -.45,
+                color: cs.primary,
               ),
             ),
             const SizedBox(height: 10),
@@ -236,8 +237,23 @@ class _Dashboard extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.hero),
-                gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF075944), Color(0xFF087F5B), Color(0xFF123D32)]),
-                boxShadow: [BoxShadow(color: AppColors.darkEmerald.withValues(alpha: .18), blurRadius: 24, offset: const Offset(0, 10))],
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF064735),
+                    Color(0xFF08674C),
+                    Color(0xFF123D32),
+                  ],
+                ),
+                border: Border.all(color: AppColors.gold, width: 1.4),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.darkEmerald.withValues(alpha: .18),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +286,18 @@ class _Dashboard extends StatelessWidget {
                       const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
+                  Text(
+                    '﷽',
+                    textDirection: TextDirection.rtl,
+                    style: const TextStyle(
+                      fontFamily: 'Amiri',
+                      fontSize: 31,
+                      height: 1.5,
+                      color: AppColors.goldLight,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
@@ -313,7 +340,7 @@ class _Dashboard extends StatelessWidget {
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.goldLight,
                       foregroundColor: AppColors.darkEmerald,
                     ),
                     onPressed: hasMemo
@@ -353,11 +380,26 @@ class _Dashboard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 24),
-            Text(
-              context.t('Baca & dengarkan', 'Read & listen'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Baca & dengarkan', 'Read & listen'),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             LayoutBuilder(
@@ -547,6 +589,13 @@ class _Shortcut extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: cs.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFBFA878).withValues(alpha: .09),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
