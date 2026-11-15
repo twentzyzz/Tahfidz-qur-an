@@ -14,6 +14,7 @@ import '../tahfidz/tahfidz_page.dart';
 import '../progress/progress_page.dart';
 import '../prayer/prayer_page.dart';
 import '../settings/settings_page.dart';
+import '../notifications/notifications_page.dart';
 import '../qari/qari_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -97,7 +98,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         actions: [
           IconButton(
             tooltip: c.t('Notifikasi salat', 'Prayer notifications'),
-            onPressed: () => open(const SettingsPage()),
+            onPressed: () => open(const NotificationsPage()),
             icon: const Icon(Icons.notifications_none_rounded),
           ),
           IconButton(
