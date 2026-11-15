@@ -93,7 +93,38 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(title: Text(c.t('Pengaturan', 'Settings'))),
       body: padded([
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF064735), Color(0xFF087F5B)],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFC5A064)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.auto_awesome_rounded,
+                  color: Color(0xFFF2D9A1), size: 28),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  c.t('Atur pengalaman ibadahmu', 'Make your worship experience yours'),
+                  style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    height: 1.25,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         SectionHeading(c.t('Umum', 'General'), icon: Icons.tune_rounded),
+        _SettingsGroup(children: [
         DropdownButtonFormField<String>(
           isExpanded: true,
           initialValue: s.store.get('language', 'id'),
@@ -112,10 +143,12 @@ class _SettingsPageState extends State<SettingsPage> {
           value: s.store.get('dark', false),
           onChanged: (v) => perform(c, () => s.store.set('dark', v)),
         ),
+        ]),
         SectionHeading(
           c.t('Al-Qur’an', 'Quran'),
           icon: Icons.menu_book_rounded,
         ),
+        _SettingsGroup(children: [
         Text(c.t('Ukuran teks Arab', 'Arabic text size')),
         Slider(
           value: s.store.get<num>('arabicSize', 32).toDouble(),
@@ -145,7 +178,9 @@ class _SettingsPageState extends State<SettingsPage> {
             MaterialPageRoute<void>(builder: (_) => const QariPage()),
           ),
         ),
+        ]),
         SectionHeading(c.t('Ibadah', 'Worship'), icon: Icons.mosque_outlined),
+        _SettingsGroup(children: [
         ListTile(
           title: Text(c.t('Kota/kabupaten', 'City/regency')),
           subtitle: Text(
@@ -218,10 +253,12 @@ class _SettingsPageState extends State<SettingsPage> {
             'Notifications are scheduled for 7 days and refreshed when the app opens. Android may delay notifications to save battery. Select a city before enabling them.',
           ),
         ),
+        ]),
         SectionHeading(
           c.t('Aplikasi', 'Application'),
           icon: Icons.info_outline_rounded,
         ),
+        _SettingsGroup(children: [
         Text(
           c.t('Tentang aplikasi', 'About'),
           style: Theme.of(c).textTheme.titleLarge,
@@ -245,7 +282,33 @@ class _SettingsPageState extends State<SettingsPage> {
             'Six reciters available. Quran translation remains Indonesian from its source.',
           ),
         ),
+        ]),
       ]),
+    );
+  }
+}
+
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 1,
+      shadowColor: const Color(0xFFBFA878).withValues(alpha: .12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      ),
     );
   }
 }
