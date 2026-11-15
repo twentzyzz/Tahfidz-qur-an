@@ -31,7 +31,7 @@ abstract final class AppTheme {
               : AppColors.secondaryText,
           outlineVariant: isDark
               ? const Color(0xFF334B40)
-              : const Color(0xFFDFE7E0),
+              : const Color(0xFFE8DCC6),
         );
     final base = ThemeData(
       useMaterial3: true,
@@ -55,7 +55,8 @@ abstract final class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: scheme.surface,
-        elevation: 0,
+        elevation: 1,
+        shadowColor: const Color(0xFFC7AD7E).withValues(alpha: .13),
         margin: EdgeInsets.zero,
         shape: border,
       ),
