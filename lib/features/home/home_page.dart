@@ -237,11 +237,34 @@ class _Dashboard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .15), borderRadius: BorderRadius.circular(24)), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.auto_awesome_rounded, size: 15, color: Color(0xFFF4D28A)), const SizedBox(width: 6), Text(context.t('PERJALANAN HAFALAN', 'MEMORIZATION JOURNEY'), style: const TextStyle(fontSize: 10, letterSpacing: 1, fontWeight: FontWeight.w800, color: Colors.white))])),
-                    const Spacer(),
-                    const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
-                  ]),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.auto_awesome_rounded, size: 15, color: Color(0xFFF4D28A)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  context.t('PERJALANAN HAFALAN', 'MEMORIZATION JOURNEY'),
+                                  softWrap: true,
+                                  style: const TextStyle(fontSize: 10, letterSpacing: .4, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
