@@ -187,7 +187,6 @@ class JuzPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                ),
               ),
             ),
           );
