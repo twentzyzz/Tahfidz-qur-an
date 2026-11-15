@@ -286,18 +286,7 @@ class _Dashboard extends StatelessWidget {
                       const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    '﷽',
-                    textDirection: TextDirection.rtl,
-                    style: const TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 31,
-                      height: 1.5,
-                      color: AppColors.goldLight,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
