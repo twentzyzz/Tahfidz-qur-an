@@ -492,65 +492,156 @@ class _Dashboard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              context.t('Salat berikutnya', 'Next prayer'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(11),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(Icons.mosque_outlined, color: cs.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            context.t('Salat berikutnya', 'Next prayer'),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const PrayerSummary(),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: onPrayer,
+                        icon: const Icon(Icons.calendar_month_rounded),
+                        label: Text(
+                          context.t(
+                            'Jadwal & checklist salat',
+                            'Prayer schedule & checklist',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
-            const PrayerSummary(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onPrayer,
-                child: Text(
-                  context.t(
-                    'Jadwal & checklist salat',
-                    'Prayer schedule & checklist',
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(Icons.headphones_rounded, color: cs.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Qari Pilihan', 'Featured reciters'),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.t('Qari Pilihan', 'Featured reciters'),
-              style: Theme.of(context).textTheme.titleLarge,
+                TextButton(
+                  onPressed: onQari,
+                  child: Text(context.t('Lihat semua', 'See all')),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            for (final id in ['05', '06', '03'])
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: QariAvatar(name: qaris[id]!),
-                title: Text(qaris[id]!),
-                onTap: onQari,
+            Card(
+              child: Column(
+                children: [
+                  for (final id in ['05', '06', '03'])
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      leading: QariAvatar(name: qaris[id]!),
+                      title: Text(
+                        qaris[id]!,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: cs.primary),
+                      onTap: onQari,
+                    ),
+                ],
               ),
+            ),
             const SizedBox(height: 20),
-            Text(
-              context.t('Bookmark ayat', 'Verse bookmarks'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            Row(
+              children: [
+                Icon(Icons.bookmark_outline_rounded, color: cs.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Bookmark ayat', 'Verse bookmarks'),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
-            if (bookmarks.isEmpty)
-              Text(
-                context.t(
-                  'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
-                  'No bookmarks yet. Tap the bookmark icon while reading.',
-                ),
-                style: TextStyle(color: cs.onSurfaceVariant),
-              ),
-            for (final ref in bookmarks.take(5))
-              ListTile(
-                title: Text(
-                  '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
-                ),
-                leading: const Icon(Icons.bookmark_outline_rounded),
-                onTap: () => onDetail(
-                  int.parse(ref.split(':')[0]),
-                  int.parse(ref.split(':')[1]),
-                ),
-              ),
+            Card(
+              child: bookmarks.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Icon(Icons.menu_book_outlined,
+                              color: cs.onSurfaceVariant),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              context.t(
+                                'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
+                                'No bookmarks yet. Tap the bookmark icon while reading.',
+                              ),
+                              style: TextStyle(color: cs.onSurfaceVariant),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        for (final ref in bookmarks.take(5))
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            leading: Icon(Icons.bookmark_rounded,
+                                color: cs.primary),
+                            title: Text(
+                              '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            trailing: Icon(Icons.arrow_outward_rounded,
+                                color: cs.primary, size: 19),
+                            onTap: () => onDetail(
+                              int.parse(ref.split(':')[0]),
+                              int.parse(ref.split(':')[1]),
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
           ],
         ),
       ),
