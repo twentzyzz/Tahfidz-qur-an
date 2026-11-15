@@ -160,26 +160,45 @@ class JuzPage extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: ListTile(
+                child: InkWell(
                   key: ValueKey('juz-${i + 1}'),
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: CatalogNumber(i + 1),
-                  title: Text('Juz ${i + 1}', style: Theme.of(c).textTheme.titleMedium),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
-                      '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
-                      style: TextStyle(
-                        height: 1.55,
-                        color: Theme.of(c).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
+                  borderRadius: BorderRadius.circular(18),
                   onTap: () => Navigator.push(
                     c,
                     MaterialPageRoute<void>(
                       builder: (_) => SurahDetailPage(juz: i + 1),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CatalogNumber(i + 1),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Juz ${i + 1}',
+                                style: Theme.of(c).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
+                                '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
+                                softWrap: true,
+                                style: TextStyle(
+                                  height: 1.55,
+                                  color: Theme.of(c).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
