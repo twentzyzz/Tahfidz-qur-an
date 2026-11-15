@@ -259,35 +259,70 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                               '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
                               style: Theme.of(c).textTheme.bodySmall,
                             ),
-                            const Divider(height: 32),
-                            if (!hidden)
-                              SelectableText(
-                                v.arabic,
-                                textDirection: TextDirection.rtl,
-                                textAlign: TextAlign.right,
-                                style: AppTypography.arabic.copyWith(
-                                  fontSize: s.store
-                                      .get<num>('arabicSize', 32)
-                                      .toDouble(),
-                                  height: 2,
+                            const SizedBox(height: 18),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 28,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(c).brightness == Brightness.dark
+                                    ? Theme.of(c).colorScheme.surface
+                                    : const Color(0xFFF0F6F0),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: Theme.of(c).colorScheme.outlineVariant,
                                 ),
                               ),
-                            if (hidden)
-                              Text(
-                                c.t(
-                                  'Teks Arab disembunyikan',
-                                  'Arabic text hidden',
+                              child: !hidden
+                                  ? SelectableText(
+                                      v.arabic,
+                                      textDirection: TextDirection.rtl,
+                                      textAlign: TextAlign.right,
+                                      style: AppTypography.arabic.copyWith(
+                                        color: Theme.of(c).colorScheme.onSurface,
+                                        fontSize: s.store
+                                            .get<num>('arabicSize', 32)
+                                            .toDouble(),
+                                        height: 2.2,
+                                      ),
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 35,
+                                      ),
+                                      child: Text(
+                                        c.t(
+                                          'Teks Arab disembunyikan',
+                                          'Arabic text hidden',
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                            ),
+                            const SizedBox(height: 26),
+                            Row(
+                              children: [
+                                Icon(Icons.translate_rounded,
+                                  color: Theme.of(c).colorScheme.primary,
+                                  size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  c.t('Makna ayat', 'Verse meaning'),
+                                  style: Theme.of(c).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                            const Divider(height: 32),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             SelectableText(
                               v.translation,
                               style: TextStyle(
                                 fontSize: s.store
                                     .get<num>('translationSize', 18)
                                     .toDouble(),
-                                height: 1.6,
+                                height: 1.8,
                               ),
                             ),
                             const SizedBox(height: 12),
