@@ -23,7 +23,9 @@ class ProgressPage extends StatelessWidget {
     final daily =
         (s.store.dailyRecord(DateTime.now())['refs'] as List? ?? []).length;
     return padded([
-      Card(
+      Container(
+        width: double.infinity,
+        decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF075944), Color(0xFF087F5B)]), borderRadius: BorderRadius.circular(24)),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -37,15 +39,14 @@ class ProgressPage extends StatelessWidget {
                     SizedBox.expand(
                       child: CircularProgressIndicator(
                         value: done / 6236,
-                        strokeWidth: 8,
-                        backgroundColor: Theme.of(c)
-                            .colorScheme
-                            .primaryContainer,
+                        strokeWidth: 9,
+                        color: const Color(0xFFF0D49A),
+                        backgroundColor: Colors.white24,
                       ),
                     ),
                     Text(
                       '${(done / 6236 * 100).toStringAsFixed(1)}%',
-                      style: Theme.of(c).textTheme.headlineMedium,
+                      style: Theme.of(c).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -53,6 +54,8 @@ class ProgressPage extends StatelessWidget {
               const SizedBox(height: 24),
               Text(
                 '$done / 6236 ${c.t('ayat sudah hafal', 'verses memorized')}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
               ),
             ],
           ),
