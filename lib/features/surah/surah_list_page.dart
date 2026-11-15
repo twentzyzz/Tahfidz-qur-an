@@ -176,10 +176,6 @@ class JuzPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  trailing: Icon(
-                    Icons.chevron_right_rounded,
-                    color: Theme.of(c).colorScheme.primary,
-                  ),
                   onTap: () => Navigator.push(
                     c,
                     MaterialPageRoute<void>(
