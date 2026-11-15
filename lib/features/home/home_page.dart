@@ -65,11 +65,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     const selected = AppIcons.selectedNavigation;
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 68,
+        toolbarHeight: 68 +
+            (MediaQuery.textScalerOf(c).scale(20) - 20).clamp(0, 80) * 2,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (index == 0) ...[
+            if (index == 0 &&
+                MediaQuery.sizeOf(c).width >= 380 &&
+                MediaQuery.textScalerOf(c).scale(16) <= 20) ...[
               SizedBox.square(
                 dimension: 38,
                 child: Image.asset(
@@ -85,8 +88,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             Flexible(
               child: Text(
                 index == 0 ? 'Tahfidz Quran' : labels[index],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
@@ -110,30 +112,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         top: false,
         bottom: false,
         child: IndexedStack(
-        index: index,
-        children: [
-          _Dashboard(
-            onSurahs: () => setState(() => index = 1),
-            onJuz: () => setState(() => index = 2),
-            onMemorize: () => setState(() => index = 3),
-            onProgress: () => setState(() => index = 4),
-            onQari: () => open(const QariPage()),
-            onPrayer: () => open(const PrayerPage()),
-            onResume: (surah, verse) => open(
-              SurahDetailPage(
-                number: surah,
-                initialVerse: verse,
-                memorize: true,
+          index: index,
+          children: [
+            _Dashboard(
+              onSurahs: () => setState(() => index = 1),
+              onJuz: () => setState(() => index = 2),
+              onMemorize: () => setState(() => index = 3),
+              onProgress: () => setState(() => index = 4),
+              onQari: () => open(const QariPage()),
+              onPrayer: () => open(const PrayerPage()),
+              onResume: (surah, verse) => open(
+                SurahDetailPage(
+                  number: surah,
+                  initialVerse: verse,
+                  memorize: true,
+                ),
               ),
+              onDetail: (surah, verse) =>
+                  open(SurahDetailPage(number: surah, initialVerse: verse)),
             ),
-            onDetail: (surah, verse) =>
-                open(SurahDetailPage(number: surah, initialVerse: verse)),
-          ),
-          const SurahListPage(),
-          const JuzPage(),
-          const TahfidzPage(),
-          const ProgressPage(),
-        ],
+            const SurahListPage(),
+            const JuzPage(),
+            const TahfidzPage(),
+            const ProgressPage(),
+          ],
         ),
       ),
       bottomNavigationBar: Column(
@@ -237,7 +239,7 @@ class _Dashboard extends StatelessWidget {
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
-                      color: AppColors.gold,
+                      color: Color(0xFFD5E8DF),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -313,26 +315,38 @@ class _Dashboard extends StatelessWidget {
                   spacing: 16,
                   runSpacing: 8,
                   children: [
-                    SizedBox(width: width, child: _Shortcut(
-                    icon: Icons.menu_book_rounded,
-                    title: context.t('Daftar Surah', 'Surah list'),
-                    onTap: onSurahs,
-                    )),
-                    SizedBox(width: width, child: _Shortcut(
-                    icon: Icons.auto_stories_rounded,
-                    title: '30 Juz',
-                    onTap: onJuz,
-                    )),
-                    SizedBox(width: width, child: _Shortcut(
-                    icon: Icons.headphones_rounded,
-                    title: context.t('Audio Murottal', 'Quran audio'),
-                    onTap: onQari,
-                    )),
-                    SizedBox(width: width, child: _Shortcut(
-                    icon: Icons.bookmark_border_rounded,
-                    title: context.t('Latihan Hafalan', 'Memorize'),
-                    onTap: onMemorize,
-                    )),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.menu_book_rounded,
+                        title: context.t('Daftar Surah', 'Surah list'),
+                        onTap: onSurahs,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.auto_stories_rounded,
+                        title: '30 Juz',
+                        onTap: onJuz,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.headphones_rounded,
+                        title: context.t('Audio Murottal', 'Quran audio'),
+                        onTap: onQari,
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: _Shortcut(
+                        icon: Icons.bookmark_border_rounded,
+                        title: context.t('Latihan Hafalan', 'Memorize'),
+                        onTap: onMemorize,
+                      ),
+                    ),
                   ],
                 );
               },
@@ -372,12 +386,12 @@ class _Dashboard extends StatelessWidget {
                       alignment: WrapAlignment.spaceBetween,
                       children: [
                         Text(
-                            context.t(
-                              'Progres Hafalan',
-                              'Memorization progress',
-                            ),
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                          context.t(
+                            'Progres Hafalan',
+                            'Memorization progress',
+                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         Text(
                           '${(done / 6236 * 100).toStringAsFixed(1)}%',
@@ -500,10 +514,12 @@ class _Shortcut extends StatelessWidget {
             children: [
               Icon(icon, size: 24, color: cs.primary),
               const SizedBox(width: 16),
-              Expanded(child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              )),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
         ),
@@ -552,6 +568,7 @@ class _CompactBottomNavigation extends StatelessWidget {
                           for (var i = 0; i < labels.length; i++)
                             Expanded(
                               child: Semantics(
+                                key: ValueKey('navigation-semantics-$i'),
                                 button: true,
                                 selected: index == i,
                                 label: labels[i],

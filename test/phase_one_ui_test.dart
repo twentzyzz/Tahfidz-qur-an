@@ -44,9 +44,12 @@ void main() {
         await t.enterText(find.byKey(const Key('surah-search')), 'zzzz');
         await t.pumpAndSettle();
         await t.ensureVisible(find.text(dark ? 'Show all surahs' : 'Tampilkan semua surah'));
+        await t.pumpAndSettle();
+        expect(find.text(dark ? 'Show all surahs' : 'Tampilkan semua surah').hitTestable(), findsOneWidget);
         await t.tap(find.text(dark ? 'Show all surahs' : 'Tampilkan semua surah'));
         await t.pumpAndSettle();
         await t.ensureVisible(find.byKey(const Key('surah-search')));
+        await t.pumpAndSettle();
         expect(find.text('Al-Fatihah'), findsOneWidget);
 
         await t.tap(find.byKey(const ValueKey('navigation-2')));
@@ -83,11 +86,15 @@ void main() {
     await t.tap(find.byKey(const ValueKey('navigation-2')));
     await t.pumpAndSettle();
     await t.tap(find.byKey(const ValueKey('juz-1')));
-    await t.pumpAndSettle();
+    await t.pump();
     expect(t.widget<SurahDetailPage>(find.byType(SurahDetailPage)).juz, 1);
-    await t.runAsync(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    });
+    for (var i = 0; i < 30 && find.byType(SelectableText).evaluate().isEmpty; i++) {
+      await t.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await t.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.byType(SelectableText), findsWidgets);
     await t.pumpAndSettle();
     expect(t.takeException(), isNull);
     await t.pumpWidget(const SizedBox());
@@ -98,7 +105,7 @@ void main() {
     final handle = t.ensureSemantics();
     addTearDown(handle.dispose);
     final target = find.byKey(const ValueKey('navigation-1'));
-    final semantics = find.ancestor(of: target, matching: find.byType(Semantics)).first;
+    final semantics = find.byKey(const ValueKey('navigation-semantics-1'));
     expect(t.getSemantics(semantics).label, 'Al-Qur’an');
     expect(t.widget<Semantics>(semantics).properties.selected, isFalse);
     final icon = find.descendant(of: target, matching: find.byType(Icon));

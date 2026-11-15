@@ -151,7 +151,11 @@ class _SurahRow extends StatelessWidget {
                 key: ValueKey('surah-${chapter.number}'),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 leading: CatalogNumber(chapter.number),
-                title: Text(chapter.name, style: Theme.of(context).textTheme.titleMedium),
+                title: Text(
+                  chapter.name,
+                  semanticsLabel: '${chapter.number}. ${chapter.name}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
