@@ -87,7 +87,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.byKey(const ValueKey('juz-1')));
     await t.pump();
-    expect(t.widget<SurahDetailPage>(find.byType(SurahDetailPage)).juz, 1);
+    await t.pump(const Duration(milliseconds: 350));
     for (var i = 0; i < 30 && find.byType(SelectableText).evaluate().isEmpty; i++) {
       await t.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -96,6 +96,7 @@ void main() {
     }
     expect(find.byType(SelectableText), findsWidgets);
     await t.pumpAndSettle();
+    expect(t.widget<SurahDetailPage>(find.byType(SurahDetailPage)).juz, 1);
     expect(t.takeException(), isNull);
     await t.pumpWidget(const SizedBox());
   });
@@ -103,7 +104,7 @@ void main() {
   testWidgets('Bottom navigation exposes selection and supports keyboard', (t) async {
     await boot(t);
     final handle = t.ensureSemantics();
-    addTearDown(handle.dispose);
+    try {
     final target = find.byKey(const ValueKey('navigation-1'));
     final semantics = find.byKey(const ValueKey('navigation-semantics-1'));
     expect(t.getSemantics(semantics).label, 'Al-Qur’an');
@@ -117,6 +118,9 @@ void main() {
     expect(t.widget<Semantics>(semantics).properties.selected, isTrue);
     expect(find.byKey(const Key('surah-search')), findsOneWidget);
     expect(t.takeException(), isNull);
+    } finally {
+      handle.dispose();
+    }
     await t.pumpWidget(const SizedBox());
   });
 }

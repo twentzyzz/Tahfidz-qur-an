@@ -297,6 +297,27 @@ class _Dashboard extends StatelessWidget {
                 ],
               ),
             ),
+            if (last['surah'] is int && last['verse'] is int) ...[
+              const SizedBox(height: 16),
+              Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: const Icon(Icons.bookmark_added_outlined),
+                  title: Text(
+                    context.t('Lanjutkan Bacaan', 'Continue reading'),
+                  ),
+                  subtitle: Text(
+                    '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
+                  ),
+                  onTap: () =>
+                      onDetail(last['surah'] as int, last['verse'] as int),
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             Text(
               context.t('Baca & dengarkan', 'Read & listen'),
@@ -351,27 +372,6 @@ class _Dashboard extends StatelessWidget {
                 );
               },
             ),
-            if (last['surah'] is int && last['verse'] is int) ...[
-              const SizedBox(height: 22),
-              Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  leading: const Icon(Icons.bookmark_added_outlined),
-                  title: Text(
-                    context.t('Lanjutkan Bacaan', 'Continue reading'),
-                  ),
-                  subtitle: Text(
-                    '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
-                  ),
-                  onTap: () =>
-                      onDetail(last['surah'] as int, last['verse'] as int),
-                ),
-              ),
-            ],
             const SizedBox(height: 22),
             Card(
               margin: EdgeInsets.zero,
@@ -604,7 +604,7 @@ class _CompactBottomNavigation extends StatelessWidget {
                                                 labels[i],
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
-                                                  fontSize: 11,
+                                                  fontSize: 12,
                                                   fontWeight: index == i ? FontWeight.w700 : FontWeight.w500,
                                                   color: index == i ? colors.primary : colors.onSurfaceVariant,
                                                 ),
