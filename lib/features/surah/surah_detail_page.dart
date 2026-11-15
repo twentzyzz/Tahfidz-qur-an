@@ -293,11 +293,21 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                               decoration: BoxDecoration(
                                 color: Theme.of(c).brightness == Brightness.dark
                                     ? Theme.of(c).colorScheme.surface
-                                    : const Color(0xFFF0F6F0),
+                                    : const Color(0xFFFFF9EC),
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: Theme.of(c).colorScheme.outlineVariant,
+                                  color: Theme.of(c).brightness == Brightness.dark
+                                      ? Theme.of(c).colorScheme.outlineVariant
+                                      : const Color(0xFFD1B77C),
+                                  width: 1.3,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFBFA878).withValues(alpha: .10),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
                               ),
                               child: !hidden
                                   ? SelectableText(
