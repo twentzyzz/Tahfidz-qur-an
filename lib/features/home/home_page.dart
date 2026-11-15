@@ -199,10 +199,10 @@ class _Dashboard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 850),
         child: ListView(
-          key: const PageStorageKey('home-dashboard'),
+          key: const PageStorageKey('home-dashboard-phase-two'),
           padding: EdgeInsets.fromLTRB(
             MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
-            16,
+            24,
             MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
             32,
           ),
@@ -212,16 +212,21 @@ class _Dashboard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               context.t(
                 'Setiap ayat, satu langkah lebih dekat',
                 'One verse, one step closer',
               ),
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4),
+              key: const Key('home-greeting-headline'),
+              softWrap: true,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                height: 1.22,
+                letterSpacing: -.45,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               MaterialLocalizations.of(context).formatFullDate(DateTime.now()),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
@@ -357,14 +362,15 @@ class _Dashboard extends StatelessWidget {
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
-                final singleColumn = constraints.maxWidth < 280 ||
-                    MediaQuery.textScalerOf(context).scale(16) > 26;
+                final singleColumn = constraints.maxWidth < 300 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 24;
+                const gap = 12.0;
                 final width = singleColumn
                     ? constraints.maxWidth
-                    : (constraints.maxWidth - 16) / 2;
+                    : (constraints.maxWidth - gap) / 2;
                 return Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
+                  spacing: gap,
+                  runSpacing: gap,
                   children: [
                     SizedBox(
                       width: width,
