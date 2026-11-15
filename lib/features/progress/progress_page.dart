@@ -76,10 +76,42 @@ class ProgressPage extends StatelessWidget {
           ),
         ),
       ),
-      const SizedBox(height: 16),
-      Text(
-        '${c.t('Target harian', 'Daily goal')}: $daily / ${s.store.get('goal', 5)}',
-      ),
+      const SizedBox(height: 20),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.track_changes_rounded,
+                      color: Theme.of(c).colorScheme.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      c.t('Target harian', 'Daily goal'),
+                      style: Theme.of(c).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$daily / ${s.store.get('goal', 5)}',
+                    style: Theme.of(c).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(c).colorScheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              LinearProgressIndicator(
+                value: (daily / s.store.get<int>('goal', 5)).clamp(0.0, 1.0),
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              const SizedBox(height: 12),
       DropdownButton<int>(
         value: s.store.get('goal', 5),
         items: [1, 3, 5, 10, 20]
@@ -107,21 +139,74 @@ class ProgressPage extends StatelessWidget {
           c.t('Kalender & hasil latihan', 'Calendar & practice results'),
         ),
       ),
-      const SizedBox(height: 24),
-      WeeklyProgress(
-        counts: weeklyCounts(p, history, DateTime.now()),
-        now: DateTime.now(),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WeeklyProgress(
+                counts: weeklyCounts(p, history, DateTime.now()),
+                now: DateTime.now(),
+              ),
+              if (weeklyCounts(p, history, DateTime.now())
+                  .every((count) => count == 0)) ...[
+                const SizedBox(height: 16),
+                Text(
+                  c.t(
+                    'Belum ada ayat yang ditandai hafal pekan ini. Mulai dari satu ayat.',
+                    'No verses marked memorized this week. Begin with one verse.',
+                  ),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(c).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(c).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
       const SizedBox(height: 24),
-      Text(
-        c.t('Perjalanan per surah', 'Your chapters'),
-        style: Theme.of(c).textTheme.titleLarge,
+      Row(
+        children: [
+          Icon(Icons.auto_stories_rounded,
+              color: Theme.of(c).colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              c.t('Perjalanan per surah', 'Your chapters'),
+              style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
       if (p.isEmpty)
-        Text(
-          c.t(
-            'Mulai hafalan untuk melihat progres per surah.',
-            'Start memorizing to see chapter progress.',
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(Icons.menu_book_rounded,
+                    color: Theme.of(c).colorScheme.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    c.t(
+                      'Mulai hafalan untuk melihat progres per surah.',
+                      'Start memorizing to see chapter progress.',
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       for (final surah in s.quran.chapters)
@@ -151,22 +236,55 @@ class ProgressPage extends StatelessWidget {
             ),
           ),
       const SizedBox(height: 20),
-      Text(
-        c.t('Riwayat hafalan', 'Memorization history'),
-        style: Theme.of(c).textTheme.titleLarge,
+      Row(
+        children: [
+          Icon(Icons.history_rounded,
+              color: Theme.of(c).colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              c.t('Riwayat hafalan', 'Memorization history'),
+              style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
       if (history.isEmpty)
-        Text(c.t('Belum ada progres tersimpan', 'No saved progress yet')),
-      for (final h in history.take(100))
-        ListTile(
-          title: Text(
-            '${h['ref']} • ${h['status'] == 'done'
-                ? c.t('Sudah hafal', 'Memorized')
-                : h['status'] == 'learning'
-                ? c.t('Sedang dihafal', 'Learning')
-                : c.t('Reset', 'Reset')}',
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Text(c.t('Belum ada progres tersimpan', 'No saved progress yet')),
           ),
-          subtitle: Text('${h['time']}'),
+        ),
+      for (final h in history.take(100))
+        Card(
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 5,
+            ),
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(c).colorScheme.primaryContainer,
+              child: Icon(
+                h['status'] == 'done'
+                    ? Icons.check_rounded
+                    : h['status'] == 'learning'
+                        ? Icons.bookmark_outline_rounded
+                        : Icons.restart_alt_rounded,
+                color: Theme.of(c).colorScheme.primary,
+              ),
+            ),
+            title: Text(
+              '${h['ref']} • ${h['status'] == 'done'
+                  ? c.t('Sudah hafal', 'Memorized')
+                  : h['status'] == 'learning'
+                      ? c.t('Sedang dihafal', 'Learning')
+                      : c.t('Reset', 'Reset')}',
+            ),
+            subtitle: Text('${h['time']}'),
+          ),
         ),
     ]);
   }
