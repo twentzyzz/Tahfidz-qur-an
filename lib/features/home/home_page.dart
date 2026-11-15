@@ -521,16 +521,17 @@ class _Dashboard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     const PrayerSummary(),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
                         onPressed: onPrayer,
-                        icon: const Icon(Icons.calendar_month_rounded),
-                        label: Text(
+                        child: Text(
                           context.t(
                             'Jadwal & checklist salat',
                             'Prayer schedule & checklist',
                           ),
+                          softWrap: true,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -551,10 +552,7 @@ class _Dashboard extends StatelessWidget {
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: onQari,
-                  child: Text(context.t('Lihat semua', 'See all')),
-                ),
+
               ],
             ),
             const SizedBox(height: 8),
