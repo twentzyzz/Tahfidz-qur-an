@@ -5,6 +5,7 @@ import '../../l10n/app_strings.dart';
 import 'surah_detail_page.dart';
 import '../../core/theme/app_typography.dart';
 import '../../services/quran_repository.dart';
+import 'reading_catalog.dart';
 
 class SurahListPage extends StatefulWidget {
   const SurahListPage({super.key, this.memorize = false});
@@ -17,6 +18,7 @@ class _SurahListPageState extends State<SurahListPage> {
   String query = '';
   @override
   Widget build(BuildContext c) {
+    if (!widget.memorize) return const ReadingCatalog();
     final session = Session.of(c);
     final chapters = session.quran.chapters
         .where(
@@ -128,45 +130,50 @@ class JuzPage extends StatelessWidget {
   @override
   Widget build(BuildContext c) {
     final q = Session.of(c).quran;
-    return ListView.builder(
-      itemCount: 30,
-      itemBuilder: (c, i) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-        child: Card(
-          margin: EdgeInsets.zero,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-            side: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 9,
-            ),
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(c).colorScheme.primaryContainer,
-              child: Text(
-                '${i + 1}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+    return CatalogFrame(
+      child: ListView.builder(
+        key: const PageStorageKey('juz-catalog'),
+        padding: const EdgeInsets.only(bottom: 32),
+        itemCount: q.juz.length + 1,
+        itemBuilder: (c, item) {
+          if (item == 0) {
+            return CatalogHeading(
+              title: c.t('Baca per juz', 'Read by juz'),
+              description: c.t(
+                '${q.juz.length} bagian, dari Al-Fatihah hingga An-Nas.',
+                '${q.juz.length} parts, from Al-Fatihah to An-Nas.',
               ),
+            );
+          }
+          final i = item - 1;
+          return Material(
+            color: Theme.of(c).colorScheme.surface,
+            child: Column(
+              children: [
+                ListTile(
+                  key: ValueKey('juz-${i + 1}'),
+                  contentPadding: const EdgeInsets.all(12),
+                  leading: CatalogNumber(i + 1),
+                  title: Text('Juz ${i + 1}', style: Theme.of(c).textTheme.titleMedium),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
+                      '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
+                    ),
+                  ),
+                  onTap: () => Navigator.push(
+                    c,
+                    MaterialPageRoute<void>(
+                      builder: (_) => SurahDetailPage(juz: i + 1),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+              ],
             ),
-            title: Text(
-              'Juz ${i + 1}',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            subtitle: Text(
-              '${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]} — ${juzEnd(q, i)}',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              c,
-              MaterialPageRoute<void>(
-                builder: (_) => SurahDetailPage(juz: i + 1),
-              ),
-            ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
