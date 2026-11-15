@@ -215,8 +215,8 @@ class _Dashboard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               context.t(
-                'Ruang hafalanmu',
-                'Your memorization space',
+                'Setiap ayat, satu langkah lebih dekat',
+                'One verse, one step closer',
               ),
               style: Theme.of(context).textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4),
@@ -231,11 +231,18 @@ class _Dashboard extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.hero),
-                color: AppColors.darkEmerald,
+                gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF075944), Color(0xFF087F5B), Color(0xFF123D32)]),
+                boxShadow: [BoxShadow(color: AppColors.darkEmerald.withValues(alpha: .18), blurRadius: 24, offset: const Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(children: [
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .15), borderRadius: BorderRadius.circular(24)), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.auto_awesome_rounded, size: 15, color: Color(0xFFF4D28A)), const SizedBox(width: 6), Text(context.t('PERJALANAN HAFALAN', 'MEMORIZATION JOURNEY'), style: const TextStyle(fontSize: 10, letterSpacing: 1, fontWeight: FontWeight.w800, color: Colors.white))])),
+                    const Spacer(),
+                    const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
+                  ]),
+                  const SizedBox(height: 24),
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
@@ -327,8 +334,8 @@ class _Dashboard extends StatelessWidget {
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
-                final singleColumn = constraints.maxWidth < 420 ||
-                    MediaQuery.textScalerOf(context).scale(16) > 20;
+                final singleColumn = constraints.maxWidth < 280 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 26;
                 final width = singleColumn
                     ? constraints.maxWidth
                     : (constraints.maxWidth - 16) / 2;
@@ -492,11 +499,7 @@ class _Dashboard extends StatelessWidget {
 }
 
 class _Shortcut extends StatelessWidget {
-  const _Shortcut({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
+  const _Shortcut({required this.icon, required this.title, required this.onTap});
   final IconData icon;
   final String title;
   final VoidCallback onTap;
@@ -504,22 +507,36 @@ class _Shortcut extends StatelessWidget {
   Widget build(BuildContext c) {
     final cs = Theme.of(c).colorScheme;
     return Material(
-      color: Colors.transparent,
+      color: cs.surface,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Row(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 120),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 24, color: cs.primary),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+              Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, size: 24, color: cs.primary),
                 ),
-              ),
+                const Spacer(),
+                Icon(Icons.arrow_outward_rounded, color: cs.onSurfaceVariant, size: 18),
+              ]),
+              const SizedBox(height: 14),
+              Text(title, maxLines: 2, style: Theme.of(c).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
             ],
           ),
         ),
