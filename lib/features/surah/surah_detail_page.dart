@@ -88,72 +88,87 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Wrap(
-                  spacing: 12,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () => Navigator.push(
-                        c,
-                        MaterialPageRoute<void>(
-                          builder: (_) => const QariPage(),
-                        ),
-                      ),
-                      icon: const Icon(Icons.headphones_rounded),
-                      label: Text(c.t('Pilih Qari', 'Choose reciter')),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(c).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: Theme.of(c).colorScheme.outlineVariant,
                     ),
-                    if (widget.memorize)
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push(
-                          c,
-                          MaterialPageRoute<void>(
-                            builder: (_) => PracticePage(
-                              verses: verses.sublist(start - 1, end),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () => Navigator.push(
+                              c,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const QariPage(),
+                              ),
                             ),
+                            icon: const Icon(Icons.headphones_rounded),
+                            label: Text(c.t('Pilih Qari', 'Choose reciter')),
                           ),
-                        ),
-                        icon: const Icon(Icons.quiz_outlined),
-                        label: Text(c.t('Ujian rentang', 'Test this range')),
-                      ),
-                    if (widget.memorize)
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push(
-                          c,
-                          MaterialPageRoute<void>(
-                            builder: (_) => OfflineRecitationPage(
-                              verses: verses.sublist(start - 1, end),
+                          DropdownButton<int>(
+                            value: repeat,
+                            underline: const SizedBox.shrink(),
+                            items: [1, 3, 5, 10]
+                                .map((n) => DropdownMenuItem(
+                                      value: n,
+                                      child: Text('$n ×'),
+                                    ))
+                                .toList(),
+                            onChanged: (n) => setState(() => repeat = n!),
+                          ),
+                          if (widget.memorize)
+                            OutlinedButton.icon(
+                              onPressed: () => Navigator.push(
+                                c,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => PracticePage(
+                                    verses: verses.sublist(start - 1, end),
+                                  ),
+                                ),
+                              ),
+                              icon: const Icon(Icons.quiz_outlined),
+                              label: Text(c.t('Ujian rentang', 'Test this range')),
                             ),
-                          ),
-                        ),
-                        icon: const Icon(Icons.mic_none),
-                        label: Text(
-                          c.t(
-                            'Latihan dengan AI Offline',
-                            'Practice with offline AI',
-                          ),
-                        ),
+                          if (widget.memorize)
+                            OutlinedButton.icon(
+                              onPressed: () => Navigator.push(
+                                c,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => OfflineRecitationPage(
+                                    verses: verses.sublist(start - 1, end),
+                                  ),
+                                ),
+                              ),
+                              icon: const Icon(Icons.mic_none),
+                              label: Text(
+                                c.t('Latihan dengan AI Offline', 'Practice with offline AI'),
+                              ),
+                            ),
+                        ],
                       ),
-                    DropdownButton<int>(
-                      value: repeat,
-                      items: [1, 3, 5, 10]
-                          .map(
-                            (n) =>
-                                DropdownMenuItem(value: n, child: Text('$n ×')),
-                          )
-                          .toList(),
-                      onChanged: (n) => setState(() => repeat = n!),
-                    ),
-                    FilledButton.icon(
-                      onPressed: () => s.player.play(
-                        verses.sublist(start - 1, end),
-                        s.store.get('qari', '05'),
-                        repeat,
+                      const SizedBox(height: 8),
+                      FilledButton.icon(
+                        onPressed: () => s.player.play(
+                          verses.sublist(start - 1, end),
+                          s.store.get('qari', '05'),
+                          repeat,
+                        ),
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        label: Text(c.t('Putar rentang', 'Play range')),
                       ),
-                      icon: const Icon(Icons.play_arrow),
-                      label: Text(c.t('Putar rentang', 'Play range')),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               if (widget.memorize)
@@ -232,7 +247,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                     return ListenableBuilder(
                       listenable: s.player,
                       builder: (c, _) => SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -248,23 +263,32 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 ),
                               ),
                             const SizedBox(height: 8),
-                            Text(
-                              s.quran.chapters[v.surah - 1].arabic,
-                              textDirection: TextDirection.rtl,
-                              style: AppTypography.arabic.copyWith(
-                                fontSize: 24,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
+                                    style: Theme.of(c).textTheme.bodySmall,
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    s.quran.chapters[v.surah - 1].arabic,
+                                    textDirection: TextDirection.rtl,
+                                    textAlign: TextAlign.end,
+                                    style: AppTypography.arabic.copyWith(
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
-                              style: Theme.of(c).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 18),
+                            const SizedBox(height: 22),
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 28,
+                                horizontal: 22,
+                                vertical: 34,
                               ),
                               decoration: BoxDecoration(
                                 color: Theme.of(c).brightness == Brightness.dark
@@ -285,7 +309,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                         fontSize: s.store
                                             .get<num>('arabicSize', 32)
                                             .toDouble(),
-                                        height: 2.2,
+                                        height: 2.35,
                                       ),
                                     )
                                   : Padding(
@@ -332,8 +356,10 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 'Indonesian translation • EQuran.id',
                               ),
                             ),
+                            const SizedBox(height: 10),
                             Wrap(
                               spacing: 8,
+                              runSpacing: 8,
                               children: [
                                 IconButton(
                                   tooltip: c.t('Salin ayat', 'Copy verse'),
@@ -389,8 +415,17 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 16),
+                            Text(
+                              c.t('Status hafalan', 'Memorization status'),
+                              style: Theme.of(c).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
                             Wrap(
-                              spacing: 8,
+                              spacing: 10,
+                              runSpacing: 10,
                               children: [
                                 for (final status in [
                                   'learning',
@@ -398,6 +433,18 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                   'none',
                                 ])
                                   ChoiceChip(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 8,
+                                    ),
+                                    avatar: Icon(
+                                      status == 'done'
+                                          ? Icons.check_circle_outline
+                                          : status == 'learning'
+                                              ? Icons.bookmark_border_rounded
+                                              : Icons.restart_alt_rounded,
+                                      size: 17,
+                                    ),
                                     selected:
                                         s.store.map('progress')[v.ref] ==
                                         status,
@@ -422,10 +469,20 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(c).colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: Theme.of(c).colorScheme.outlineVariant,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton.filledTonal(
                     tooltip: c.t('Ayat sebelumnya', 'Previous verse'),
                     onPressed: current == 0
                         ? null
@@ -435,8 +492,13 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                           ),
                     icon: const Icon(Icons.chevron_left),
                   ),
-                  Text('${current + 1} / ${verses.length}'),
-                  IconButton(
+                    Text(
+                      '${current + 1} / ${verses.length}',
+                      style: Theme.of(c).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    IconButton.filledTonal(
                     tooltip: c.t('Ayat berikutnya', 'Next verse'),
                     onPressed: current == verses.length - 1
                         ? null
@@ -445,8 +507,9 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                             curve: Curves.easeOut,
                           ),
                     icon: const Icon(Icons.chevron_right),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ],
           );
