@@ -27,6 +27,13 @@ void main() {
 
       expect(find.byType(SettingsPage), findsOneWidget);
       expect(find.text('Ibadah yang terasa lebih dekat'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Qari & audio'),
+        180,
+        scrollable: find.byType(Scrollable).last,
+        maxScrolls: 10,
+      );
+      await tester.pumpAndSettle();
       expect(find.text('Qari & audio'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
