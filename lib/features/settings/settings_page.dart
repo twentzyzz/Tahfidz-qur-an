@@ -1,5 +1,6 @@
 import '../../widgets/section_heading.dart';
 import '../qari/qari_page.dart';
+import 'backup_page.dart';
 import '../../services/player_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -184,6 +185,44 @@ class _SettingsPageState extends State<SettingsPage> {
         ]),
         SectionHeading(c.t('Ibadah', 'Worship'), icon: Icons.mosque_outlined),
         _SettingsGroup(children: [
+        SwitchListTile(
+          secondary: const Icon(Icons.event_repeat_rounded),
+          title: Text(c.t('Pengingat murajaah', 'Review reminders')),
+          subtitle: Text(c.t(
+            'Pengingat pukul 08.00 jika ada ayat yang perlu diulang.',
+            'Remind at 8 AM when verses are due for review.',
+          )),
+          value: s.store.get<bool>('reviewNotifications', false),
+          onChanged: busy ? null : (enabled) async {
+            setState(() => busy = true);
+            try {
+              if (enabled && !await s.prayer.enablePermission()) {
+                if (c.mounted) {
+                  ScaffoldMessenger.of(c).showSnackBar(SnackBar(
+                    content: Text(c.t(
+                      'Izin notifikasi diperlukan untuk pengingat murajaah.',
+                      'Notification permission is required for review reminders.',
+                    )),
+                  ));
+                }
+                return;
+              }
+              await s.store.set('reviewNotifications', enabled);
+            } catch (_) {
+              if (c.mounted) {
+                ScaffoldMessenger.of(c).showSnackBar(SnackBar(
+                  content: Text(c.t(
+                    'Pengaturan pengingat gagal disimpan.',
+                    'Could not save review reminder setting.',
+                  )),
+                ));
+              }
+            } finally {
+              if (mounted) setState(() => busy = false);
+            }
+          },
+        ),
+        const Divider(height: 24),
         ListTile(
           title: Text(c.t('Kota/kabupaten', 'City/regency')),
           subtitle: Text(
@@ -257,6 +296,25 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         ]),
+        SectionHeading(
+          c.t('Data & backup', 'Data & backup'),
+          icon: Icons.backup_outlined,
+        ),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.settings_backup_restore_rounded),
+            title: Text(c.t('Backup & pulihkan hafalan', 'Backup & restore memorization')),
+            subtitle: Text(c.t(
+              'Simpan atau pulihkan progres, bookmark, dan riwayat.',
+              'Save or restore progress, bookmarks and history.',
+            )),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(builder: (_) => const BackupPage()),
+            ),
+          ),
+        ),
         SectionHeading(
           c.t('Aplikasi', 'Application'),
           icon: Icons.info_outline_rounded,
