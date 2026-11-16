@@ -95,10 +95,11 @@ void main() {
     // still have its center beyond the bottom edge on small screens.
     final darkThemeSwitch = find.widgetWithText(SwitchListTile, 'Dark theme');
     expect(darkThemeSwitch, findsOneWidget);
+    // Instant scrolling avoids waiting for an unpumped animation in tests.
     await Scrollable.ensureVisible(
       t.element(darkThemeSwitch),
       alignment: 0.5,
-      duration: const Duration(milliseconds: 200),
+      duration: Duration.zero,
     );
     await t.pumpAndSettle();
     await t.tap(darkThemeSwitch);
