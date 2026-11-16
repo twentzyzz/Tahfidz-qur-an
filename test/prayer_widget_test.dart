@@ -13,6 +13,7 @@ import 'package:tahfidz_quran/features/prayer/prayer_page.dart';
 import 'package:tahfidz_quran/services/app_store.dart';
 import 'package:tahfidz_quran/services/prayer_service.dart';
 import 'package:tahfidz_quran/services/player_controller.dart';
+import 'package:tahfidz_quran/services/audio_offline_service.dart';
 import 'package:tahfidz_quran/services/quran_repository.dart';
 
 void main() {
@@ -55,6 +56,7 @@ void main() {
         {'id': '1701', 'lokasi': 'Badung'},
       ];
       final player = PlayerController();
+      final offline = AudioOfflineService();
       await t.pumpWidget(
         ListenableBuilder(
           listenable: store,
@@ -62,6 +64,7 @@ void main() {
             store: store,
             quran: QuranRepository(),
             player: player,
+            audioOffline: offline,
             prayer: prayer,
             child: const MaterialApp(
               localizationsDelegates: [AppStrings.delegate],
@@ -81,6 +84,7 @@ void main() {
       expect(find.text('13:00'), findsNWidgets(5));
       await t.pumpWidget(const SizedBox());
       player.dispose();
+      offline.dispose();
       store.dispose();
       prayer.client.close();
     },

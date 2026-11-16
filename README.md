@@ -8,7 +8,7 @@ Aplikasi Flutter/Dart untuk membaca Al-Qur'an, mengulang audio hafalan, mencatat
 - Dataset asli EQuran.id diambil melalui API v2 pada 1 November 2026 dan disertakan sebagai aset agar bacaan tersedia offline. Batas juz berasal dari metadata AlQuran Cloud. Tidak ada ayat atau terjemahan buatan. Pembaruan dataset dilakukan melalui pembaruan aplikasi; versi ini belum menyinkronkan teks Quran otomatis dari server.
 - Pembaca satu ayat per halaman: geser kiri/kanan atau gunakan tombol panah. Halaman dapat digulir untuk ayat panjang. Bookmark, bacaan terakhir, ukuran Arab dan terjemahan disimpan lokal. Geser halaman memperbarui bacaan terakhir; tombol **Bacaan terakhir** menandai ayat yang sedang dibuka.
 - **Enam qari**: Abdullah Al-Juhany, Abdul Muhsin Al-Qasim, Abdurrahman As-Sudais, Ibrahim Al-Dossari, Mishary Rashid Alafasy, Yasser Al-Dosari. Semua URL audio berasal dari respons EQuran.id. Tidak ada URL audio hasil tebakan.
-- Audio streaming per ayat, play/pause/stop, sebelumnya/berikutnya, seluruh surah atau juz, pengulangan rentang **1/3/5/10 kali**, serta mini player. Pilihan qari terakhir disimpan; mengganti qari saat audio aktif memulai ulang rentang dengan suara baru. Koneksi Internet diperlukan untuk audio. Unduhan audio offline dan playback background belum disediakan.
+- Audio streaming per ayat, play/pause/stop, sebelumnya/berikutnya, seluruh surah atau juz, pengulangan rentang **1/3/5/10 kali**, serta mini player. Pilihan qari terakhir disimpan; mengganti qari saat audio aktif memulai ulang rentang dengan suara baru. **Audio murottal offline** bisa diunduh atas tindakan pengguna untuk surah dan qari tertentu; file lengkap diputar otomatis dari penyimpanan privat perangkat, sementara ayat yang belum diunduh tetap streaming. Playback background belum disediakan.
 - Mode hafalan: pilih surah, ayat awal/akhir, sembunyikan/tampilkan teks Arab, ulangi rentang, tandai **Sedang dihafal / Sudah hafal / Reset**. Target harian, progres per surah, persentase dan riwayat disimpan lokal.
 - Navigasi bawah: **Beranda, Al-Qur'an, 30 Juz, Hafalan, Progres**. Jadwal salat dan pengaturan dapat dibuka dari ikon bagian atas.
 - Bahasa Indonesia (default) dan English melalui sistem `LocalizationsDelegate` resmi Flutter beserta `flutter_localizations`. Bahasa antarmuka berubah; terjemahan Quran tetap bahasa Indonesia dari sumbernya. Tema terang/gelap dan ukuran teks dapat diubah.
@@ -16,6 +16,12 @@ Aplikasi Flutter/Dart untuk membaca Al-Qur'an, mengulang audio hafalan, mencatat
 - Pilihan kota manual tetap tersedia tanpa izin lokasi. GPS meminta izin saat tombol ditekan, menggunakan reverse geocoding sistem operasi, kemudian menampilkan pencarian kota untuk dikonfirmasi pengguna. Koordinat GPS tidak disimpan.
 - Notifikasi salat dan pengingat 5/10/15 menit sebelumnya. Izin Android diminta saat diaktifkan. Jadwal valid dicache, dan mode cache ditandai jika server tidak dapat dihubungi.
 - Ikon mushaf emerald/emas, adaptive launcher icon Android, dan splash screen khusus. Nama launcher **Tahfidz Quran**.
+
+## Unduhan audio offline (Android / perangkat dengan filesystem)
+
+Buka **Pengaturan → Qari & audio → Kelola audio offline**, lalu pilih qari dan tekan ikon unduh pada surah yang diinginkan. Progres unduh dihitung per ayat. Bisa dibatalkan; ayat yang selesai tetap tersimpan dan proses berikutnya melanjutkan dari file yang belum ada. Ikon hapus menghapus hanya audio surah dan qari terkait setelah konfirmasi. Audio tidak otomatis diunduh atau dimasukkan ke APK; lokasi file adalah direktori privat aplikasi. Uninstall/menghapus data aplikasi menghilangkan cache ini.
+
+Unduh saat terhubung Wi-Fi dan pastikan ruang perangkat mencukupi. Saat audio diputar, file lokal yang lengkap diprioritaskan; sisanya perlu Internet. Perubahan unduhan saat pemutaran sedang aktif berlaku setelah pemutaran dimulai ulang. Sumber tetap EQuran.id dan hak penggunaannya mengikuti ketentuan penyedia; implementasi ini tidak memberikan izin redistribusi audio. Web belum menyediakan penyimpanan audio offline.
 
 ## Batasan yang perlu diketahui
 

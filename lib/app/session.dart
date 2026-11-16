@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../services/app_store.dart';
 import '../services/quran_repository.dart';
 import '../services/player_controller.dart';
+import '../services/audio_offline_service.dart';
 import '../services/prayer_service.dart';
 
 class Session extends InheritedWidget {
@@ -11,12 +12,14 @@ class Session extends InheritedWidget {
     required this.store,
     required this.quran,
     required this.player,
+    required this.audioOffline,
     required this.prayer,
     required super.child,
   });
   final AppStore store;
   final QuranRepository quran;
   final PlayerController player;
+  final AudioOfflineService audioOffline;
   final PrayerService prayer;
   static Session of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<Session>()!;
