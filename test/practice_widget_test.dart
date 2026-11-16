@@ -103,6 +103,11 @@ void main() {
         MaterialPageRoute<void>(builder: (_) => const ReviewPage()),
       );
       await t.pumpAndSettle();
+      await t.scrollUntilVisible(
+        find.text('0 ayat perlu diulang'),
+        220,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.text('0 ayat perlu diulang'), findsOneWidget);
       expect(t.takeException(), isNull);
       await t.pumpWidget(const SizedBox());
