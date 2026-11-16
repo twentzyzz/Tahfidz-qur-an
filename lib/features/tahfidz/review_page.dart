@@ -267,8 +267,10 @@ class _ReviewPageState extends State<ReviewPage> {
                                 ),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: colors.onSurfaceVariant,
-                            height: 1.5,
+                            color: colors.onSurface.withValues(alpha: .86),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            height: 1.55,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -351,8 +353,10 @@ class _ReviewPageState extends State<ReviewPage> {
                                     'No upcoming reviews yet. Keep your memorization strong.',
                                   ),
                             style: TextStyle(
-                              color: colors.onSurfaceVariant,
-                              height: 1.45,
+                              color: colors.onSurface.withValues(alpha: .86),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              height: 1.5,
                             ),
                           ),
                         ),
@@ -433,8 +437,9 @@ class _ReviewPageState extends State<ReviewPage> {
                   'Jadwal dihitung dari penilaian kelancaranmu sendiri, bukan hasil koreksi AI.',
                   'The schedule is based on your own fluency rating, not an AI assessment.',
                 ),
-                style: Theme.of(c).textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: Theme.of(c).textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurface.withValues(alpha: .82),
+                  fontSize: 13,
                   height: 1.5,
                 ),
               ),
@@ -465,7 +470,7 @@ class _HeroStat extends StatelessWidget {
       Text(
         label,
         style: const TextStyle(
-          color: Color(0xFFE2F1E9), fontSize: 12, height: 1.3,
+          color: Color(0xFFE2F1E9), fontSize: 13, height: 1.4,
         ),
       ),
     ],
@@ -565,7 +570,9 @@ class _GuideRow extends StatelessWidget {
               )),
               const SizedBox(height: 4),
               Text(description, style: TextStyle(
-                color: colors.onSurfaceVariant, height: 1.4,
+                color: colors.onSurface.withValues(alpha: .85),
+                fontSize: 14,
+                height: 1.45,
               )),
             ],
           ),
