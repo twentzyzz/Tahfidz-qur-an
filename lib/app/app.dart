@@ -68,8 +68,8 @@ class _TahfidzAppState extends State<TahfidzApp> {
       setState(() {
         store = s;
         prayer = p;
-        audioOffline = AudioOfflineService();
-        player = PlayerController(offlineAudio: audioOffline);
+        offlineAudio = AudioOfflineService();
+        player = PlayerController(offlineAudio: offlineAudio);
       });
     } catch (_) {
       if (mounted) setState(() => failed = true);
@@ -79,7 +79,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
   @override
   void dispose() {
     player?.dispose();
-    audioOffline?.dispose();
+    offlineAudio?.dispose();
     store?.dispose();
     prayer?.dispose();
     super.dispose();
@@ -109,7 +109,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
         store: store!,
         quran: quran,
         player: player!,
-        audioOffline: audioOffline!,
+        audioOffline: offlineAudio!,
         prayer: prayer!,
         child: MaterialApp(
           title: 'Tahfidz Quran',

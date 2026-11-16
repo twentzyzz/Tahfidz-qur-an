@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'package:flutter/material.dart';
 
 import '../../app/session.dart';
@@ -91,7 +93,9 @@ class _OfflineAudioPageState extends State<OfflineAudioPage> {
       await s.audioOffline.deleteSurah(surah, voice);
       if (mounted) refresh();
     } catch (_) {
-      message(context.t('Gagal menghapus audio.', 'Unable to delete audio.'));
+      if (mounted) {
+        message(context.t('Gagal menghapus audio.', 'Unable to delete audio.'));
+      }
     }
   }
 
