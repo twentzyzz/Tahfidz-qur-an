@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tahfidz_quran/app/session.dart';
+import 'package:tahfidz_quran/features/tahfidz/review_page.dart';
 
 import 'widget_test.dart' show boot;
 
@@ -22,6 +23,11 @@ void main() {
     await openReview(t);
     expect(find.byKey(const Key('murajaah-empty')), findsOneWidget);
     expect(find.text('Belum ada jadwal murajaah'), findsOneWidget);
+    await t.scrollUntilVisible(
+      find.byKey(const Key('murajaah-upcoming-empty')),
+      240,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.byKey(const Key('murajaah-upcoming-empty')), findsOneWidget);
     await t.ensureVisible(find.byKey(const Key('murajaah-start-memorization')));
     await t.pumpAndSettle();
@@ -44,6 +50,11 @@ void main() {
     await t.pumpAndSettle();
     await openReview(t);
     expect(find.byKey(const ValueKey('murajaah-due-1:1')), findsOneWidget);
+    await t.scrollUntilVisible(
+      find.byKey(const ValueKey('murajaah-upcoming-1:2')),
+      240,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.byKey(const ValueKey('murajaah-upcoming-1:2')),
         findsOneWidget);
     expect(find.byKey(const Key('murajaah-empty')), findsNothing);
@@ -63,7 +74,13 @@ void main() {
     final session = Session.of(t.element(find.byType(Scaffold).first));
     await session.store.set('dark', true);
     await t.pumpAndSettle();
-    await openReview(t);
+    Navigator.of(t.element(find.byType(Scaffold).first)).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ReviewPage(),
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(t.takeException(), isNull);
     await t.scrollUntilVisible(
       find.byKey(const Key('murajaah-guide')),
       250,
