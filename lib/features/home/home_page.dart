@@ -14,6 +14,7 @@ import '../tahfidz/tahfidz_page.dart';
 import '../progress/progress_page.dart';
 import '../prayer/prayer_page.dart';
 import '../settings/settings_page.dart';
+import '../notifications/notifications_page.dart';
 import '../qari/qari_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -97,7 +98,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         actions: [
           IconButton(
             tooltip: c.t('Notifikasi salat', 'Prayer notifications'),
-            onPressed: () => open(const SettingsPage()),
+            onPressed: () => open(const NotificationsPage()),
             icon: const Icon(Icons.notifications_none_rounded),
           ),
           IconButton(
@@ -199,10 +200,10 @@ class _Dashboard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 850),
         child: ListView(
-          key: const PageStorageKey('home-dashboard'),
+          key: const PageStorageKey('home-dashboard-phase-two'),
           padding: EdgeInsets.fromLTRB(
             MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
-            16,
+            24,
             MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
             32,
           ),
@@ -212,16 +213,22 @@ class _Dashboard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               context.t(
-                'Ruang hafalanmu',
-                'Your memorization space',
+                'Setiap ayat, satu langkah lebih dekat',
+                'One verse, one step closer',
               ),
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4),
+              key: const Key('home-greeting-headline'),
+              softWrap: true,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                height: 1.22,
+                letterSpacing: -.45,
+                color: cs.primary,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               MaterialLocalizations.of(context).formatFullDate(DateTime.now()),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
@@ -231,11 +238,56 @@ class _Dashboard extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.hero),
-                color: AppColors.darkEmerald,
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF064735),
+                    Color(0xFF08674C),
+                    Color(0xFF123D32),
+                  ],
+                ),
+                border: Border.all(color: AppColors.gold, width: 1.4),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.darkEmerald.withValues(alpha: .18),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.auto_awesome_rounded, size: 15, color: Color(0xFFF4D28A)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  context.t('PERJALANAN HAFALAN', 'MEMORIZATION JOURNEY'),
+                                  softWrap: true,
+                                  style: const TextStyle(fontSize: 10, letterSpacing: .4, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.menu_book_rounded, color: Color(0xFFE0C98E), size: 27),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
                   Text(
                     context.t('Hafalan hari ini', 'Today’s memorization'),
                     style: const TextStyle(
@@ -278,7 +330,7 @@ class _Dashboard extends StatelessWidget {
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.goldLight,
                       foregroundColor: AppColors.darkEmerald,
                     ),
                     onPressed: hasMemo
@@ -318,23 +370,39 @@ class _Dashboard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 24),
-            Text(
-              context.t('Baca & dengarkan', 'Read & listen'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Baca & dengarkan', 'Read & listen'),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
-                final singleColumn = constraints.maxWidth < 420 ||
-                    MediaQuery.textScalerOf(context).scale(16) > 20;
+                final singleColumn = constraints.maxWidth < 300 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 24;
+                const gap = 12.0;
                 final width = singleColumn
                     ? constraints.maxWidth
-                    : (constraints.maxWidth - 16) / 2;
+                    : (constraints.maxWidth - gap) / 2;
                 return Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
+                  spacing: gap,
+                  runSpacing: gap,
                   children: [
                     SizedBox(
                       width: width,
@@ -425,65 +493,154 @@ class _Dashboard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              context.t('Salat berikutnya', 'Next prayer'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(11),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(Icons.mosque_outlined, color: cs.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            context.t('Salat berikutnya', 'Next prayer'),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const PrayerSummary(),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        onPressed: onPrayer,
+                        child: Text(
+                          context.t(
+                            'Jadwal & checklist salat',
+                            'Prayer schedule & checklist',
+                          ),
+                          softWrap: true,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
-            const PrayerSummary(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onPrayer,
-                child: Text(
-                  context.t(
-                    'Jadwal & checklist salat',
-                    'Prayer schedule & checklist',
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(Icons.headphones_rounded, color: cs.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Qari Pilihan', 'Featured reciters'),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.t('Qari Pilihan', 'Featured reciters'),
-              style: Theme.of(context).textTheme.titleLarge,
+
+              ],
             ),
             const SizedBox(height: 8),
-            for (final id in ['05', '06', '03'])
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: QariAvatar(name: qaris[id]!),
-                title: Text(qaris[id]!),
-                onTap: onQari,
+            Card(
+              child: Column(
+                children: [
+                  for (final id in ['05', '06', '03'])
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      leading: QariAvatar(name: qaris[id]!),
+                      title: Text(
+                        qaris[id]!,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: cs.primary),
+                      onTap: onQari,
+                    ),
+                ],
               ),
+            ),
             const SizedBox(height: 20),
-            Text(
-              context.t('Bookmark ayat', 'Verse bookmarks'),
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+            Row(
+              children: [
+                Icon(Icons.bookmark_outline_rounded, color: cs.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.t('Bookmark ayat', 'Verse bookmarks'),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
-            if (bookmarks.isEmpty)
-              Text(
-                context.t(
-                  'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
-                  'No bookmarks yet. Tap the bookmark icon while reading.',
-                ),
-                style: TextStyle(color: cs.onSurfaceVariant),
-              ),
-            for (final ref in bookmarks.take(5))
-              ListTile(
-                title: Text(
-                  '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
-                ),
-                leading: const Icon(Icons.bookmark_outline_rounded),
-                onTap: () => onDetail(
-                  int.parse(ref.split(':')[0]),
-                  int.parse(ref.split(':')[1]),
-                ),
-              ),
+            Card(
+              child: bookmarks.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Icon(Icons.menu_book_outlined,
+                              color: cs.onSurfaceVariant),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              context.t(
+                                'Belum ada bookmark. Ketuk ikon bookmark saat membaca.',
+                                'No bookmarks yet. Tap the bookmark icon while reading.',
+                              ),
+                              style: TextStyle(color: cs.onSurfaceVariant),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        for (final ref in bookmarks.take(5))
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            leading: Icon(Icons.bookmark_rounded,
+                                color: cs.primary),
+                            title: Text(
+                              '${s.quran.chapters[int.parse(ref.split(':')[0]) - 1].name} • ${ref.split(':')[1]}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            trailing: Icon(Icons.arrow_outward_rounded,
+                                color: cs.primary, size: 19),
+                            onTap: () => onDetail(
+                              int.parse(ref.split(':')[0]),
+                              int.parse(ref.split(':')[1]),
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
           ],
         ),
       ),
@@ -492,11 +649,7 @@ class _Dashboard extends StatelessWidget {
 }
 
 class _Shortcut extends StatelessWidget {
-  const _Shortcut({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
+  const _Shortcut({required this.icon, required this.title, required this.onTap});
   final IconData icon;
   final String title;
   final VoidCallback onTap;
@@ -504,22 +657,43 @@ class _Shortcut extends StatelessWidget {
   Widget build(BuildContext c) {
     final cs = Theme.of(c).colorScheme;
     return Material(
-      color: Colors.transparent,
+      color: cs.surface,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Row(
-            children: [
-              Icon(icon, size: 24, color: cs.primary),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 120),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFBFA878).withValues(alpha: .09),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, size: 24, color: cs.primary),
+                ),
+                const Spacer(),
+                Icon(Icons.arrow_outward_rounded, color: cs.onSurfaceVariant, size: 18),
+              ]),
+              const SizedBox(height: 14),
+              Text(title, maxLines: 2, style: Theme.of(c).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
             ],
           ),
         ),

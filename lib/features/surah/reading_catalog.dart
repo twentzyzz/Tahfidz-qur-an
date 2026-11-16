@@ -139,22 +139,33 @@ class _SurahRow extends StatelessWidget {
           chapter.arabic,
           textDirection: TextDirection.rtl,
           style: AppTypography.arabic.copyWith(
-            fontSize: 24,
+            fontSize: 25,
             color: colors.primary,
+            height: 1.65,
           ),
         );
-        return Material(
-          color: colors.surface,
-          child: Column(
-            children: [
-              ListTile(
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Material(
+            color: colors.surface,
+            elevation: 1,
+            shadowColor: const Color(0xFFBFA878).withValues(alpha: .12),
+            borderRadius: BorderRadius.circular(18),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: colors.outlineVariant),
+              ),
+              child: ListTile(
                 key: ValueKey('surah-${chapter.number}'),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 leading: CatalogNumber(chapter.number),
                 title: Text(
                   chapter.name,
                   semanticsLabel: '${chapter.number}. ${chapter.name}',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,8 +183,7 @@ class _SurahRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const Divider(height: 1),
-            ],
+            ),
           ),
         );
       },
@@ -213,7 +223,14 @@ class CatalogHeading extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: Theme.of(context).colorScheme.primary,
+            letterSpacing: -.7,
+          ),
+        ),
         const SizedBox(height: 8),
         Text(
           description,
@@ -229,22 +246,42 @@ class CatalogNumber extends StatelessWidget {
   final int number;
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: Container(
-      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        '$number',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final colors = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: 42,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.rotate(
+              angle: .785398,
+              child: Container(
+                width: 31,
+                height: 31,
+                decoration: BoxDecoration(
+                  color: dark ? colors.primaryContainer : const Color(0xFFF9EAC9),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: dark ? colors.primary : const Color(0xFFC5A064),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              '$number',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.onSurface,
+                fontSize: number >= 100 ? 11 : 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
       ),
-    ),
-  );
+    );
+  }
 }

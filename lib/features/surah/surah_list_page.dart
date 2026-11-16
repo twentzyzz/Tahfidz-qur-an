@@ -146,31 +146,63 @@ class JuzPage extends StatelessWidget {
             );
           }
           final i = item - 1;
-          return Material(
-            color: Theme.of(c).colorScheme.surface,
-            child: Column(
-              children: [
-                ListTile(
-                  key: ValueKey('juz-${i + 1}'),
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: CatalogNumber(i + 1),
-                  title: Text('Juz ${i + 1}', style: Theme.of(c).textTheme.titleMedium),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
-                      '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
-                    ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Material(
+              color: Theme.of(c).colorScheme.surface,
+              elevation: 1,
+              shadowColor: const Color(0xFFBFA878).withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(c).colorScheme.outlineVariant,
                   ),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: InkWell(
+                  key: ValueKey('juz-${i + 1}'),
+                  borderRadius: BorderRadius.circular(18),
                   onTap: () => Navigator.push(
                     c,
                     MaterialPageRoute<void>(
                       builder: (_) => SurahDetailPage(juz: i + 1),
                     ),
                   ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CatalogNumber(i + 1),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Juz ${i + 1}',
+                                style: Theme.of(c).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${c.t('Mulai', 'From')} ${q.chapters[q.juz[i][0] - 1].name} : ${q.juz[i][1]}\n'
+                                '${c.t('Hingga', 'To')} ${juzEnd(q, i)}',
+                                softWrap: true,
+                                style: TextStyle(
+                                  height: 1.55,
+                                  color: Theme.of(c).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const Divider(height: 1),
-              ],
+              ),
             ),
           );
         },
