@@ -91,6 +91,12 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Dark theme'), findsOneWidget);
+    await t.scrollUntilVisible(
+      find.byType(SwitchListTile).first,
+      160,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await t.pumpAndSettle();
     await t.tap(find.byType(SwitchListTile).first);
     await t.pumpAndSettle();
     expect(
