@@ -77,7 +77,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
   void dispose() {
     player?.dispose();
     store?.dispose();
-    prayer?.client.close();
+    prayer?.dispose();
     super.dispose();
   }
 

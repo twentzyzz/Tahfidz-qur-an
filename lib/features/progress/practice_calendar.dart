@@ -44,28 +44,54 @@ class _PracticeCalendarState extends State<PracticeCalendar> {
           lastDate: DateTime.now(),
           onDateChanged: (date) => setState(() => selected = date),
         ),
-        Text(
-          MaterialLocalizations.of(c).formatFullDate(selected),
-          style: Theme.of(c).textTheme.titleLarge,
-        ),
-        Text(
-          '${refs.length} ${c.t('ayat ditandai hafal pada tanggal ini', 'verses marked memorized on this date')}',
-        ),
-        Text(
-          goal == null
-              ? c.t(
-                  'Target tanggal ini tidak tercatat.',
-                  'No target was recorded for this date.',
-                )
-              : '${c.t('Target', 'Goal')}: ${refs.length} / $goal — ${refs.length >= goal ? c.t('Tercapai', 'Reached') : c.t('Belum tercapai', 'Not reached')}',
-        ),
-        Text(
-          c.t(
-            'Catatan aktivitas tetap tersimpan meskipun status ayat kemudian direset. Target lama yang tidak tercatat tidak diperkirakan.',
-            'Activity remains recorded even if a verse is later reset. Missing historical targets are not estimated.',
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  MaterialLocalizations.of(c).formatFullDate(selected),
+                  style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${refs.length} ${c.t('ayat ditandai hafal pada tanggal ini', 'verses marked memorized on this date')}',
+                  style: Theme.of(c).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  goal == null
+                      ? c.t(
+                          'Target tanggal ini tidak tercatat.',
+                          'No target was recorded for this date.',
+                        )
+                      : '${c.t('Target', 'Goal')}: ${refs.length} / $goal — ${refs.length >= goal ? c.t('Tercapai', 'Reached') : c.t('Belum tercapai', 'Not reached')}',
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+                Text(
+                  c.t(
+                    'Catatan aktivitas tetap tersimpan meskipun status ayat kemudian direset. Target lama yang tidak tercatat tidak diperkirakan.',
+                    'Activity remains recorded even if a verse is later reset. Missing historical targets are not estimated.',
+                  ),
+                  style: Theme.of(c).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(c).colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+                if (refs.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(refs.join(', ')),
+                ],
+              ],
+            ),
           ),
         ),
-        if (refs.isNotEmpty) Text(refs.join(', ')),
         const SizedBox(height: 24),
         Text(
           c.t('Hasil latihan manual', 'Manual practice results'),

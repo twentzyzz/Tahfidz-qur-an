@@ -433,19 +433,21 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  for (final status in [
-                                    'learning',
-                                    'done',
-                                    'none',
-                                  ]) ...[
-                                    if (status != 'learning')
-                                      const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Builder(
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final compact = constraints.maxWidth < 350 ||
+                                    MediaQuery.textScalerOf(context).scale(16) > 22;
+                                final buttonWidth = compact
+                                    ? (constraints.maxWidth - 8) / 2
+                                    : (constraints.maxWidth - 16) / 3;
+                                return Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    for (final status in ['learning', 'done', 'none'])
+                                      SizedBox(
+                                        width: buttonWidth,
+                                        child: Builder(
                                         builder: (context) {
                                           final colors = Theme.of(context).colorScheme;
                                           final selected =
@@ -469,8 +471,8 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                               child: Container(
                                                 constraints: const BoxConstraints(minHeight: 66),
                                                 padding: const EdgeInsets.symmetric(
-                                                  horizontal: 4,
-                                                  vertical: 10,
+                                                  horizontal: 8,
+                                                  vertical: 12,
                                                 ),
                                                 decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(14),
@@ -518,11 +520,11 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                             ),
                                           );
                                         },
+                                        ),
                                       ),
-                                    ),
                                   ],
-                                ],
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),

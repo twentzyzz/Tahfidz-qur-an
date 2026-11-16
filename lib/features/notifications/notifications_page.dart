@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
+import '../../services/practice_store.dart';
+import '../tahfidz/review_page.dart';
 import '../prayer/prayer_page.dart';
 import '../settings/settings_page.dart';
 
@@ -123,6 +125,26 @@ class NotificationsPage extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: ListTile(
+                    leading: Icon(Icons.event_repeat_rounded, color: colors.primary),
+                    title: Text(context.t('Pengingat murajaah', 'Review reminders')),
+                    subtitle: Text(
+                      store.get<bool>('reviewNotifications', false)
+                          ? context.t(
+                              '${store.dueReviews(DateTime.now()).length} ayat perlu diulang hari ini. Pengingat dijadwalkan sekitar pukul 08.00.',
+                              '${store.dueReviews(DateTime.now()).length} verses are due today. Reminders are scheduled around 8 AM.',
+                            )
+                          : context.t('Belum diaktifkan', 'Not enabled'),
+                    ),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(builder: (_) => const ReviewPage()),
                     ),
                   ),
                 ),

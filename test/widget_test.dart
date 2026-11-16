@@ -91,7 +91,18 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Dark theme'), findsOneWidget);
-    await t.tap(find.byType(SwitchListTile).first);
+    // Center the exact control before tapping. A partially visible tile can
+    // still have its center beyond the bottom edge on small screens.
+    final darkThemeSwitch = find.widgetWithText(SwitchListTile, 'Dark theme');
+    expect(darkThemeSwitch, findsOneWidget);
+    // Instant scrolling avoids waiting for an unpumped animation in tests.
+    await Scrollable.ensureVisible(
+      t.element(darkThemeSwitch),
+      alignment: 0.5,
+      duration: Duration.zero,
+    );
+    await t.pumpAndSettle();
+    await t.tap(darkThemeSwitch);
     await t.pumpAndSettle();
     expect(
       Theme.of(t.element(find.text('Settings'))).brightness,

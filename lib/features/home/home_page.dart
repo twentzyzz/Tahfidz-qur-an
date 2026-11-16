@@ -731,13 +731,14 @@ class _CompactBottomNavigation extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Divider(height: 1),
+                Divider(height: 1, color: colors.outlineVariant),
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 850),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (var i = 0; i < labels.length; i++)
                             Expanded(
@@ -753,33 +754,68 @@ class _CompactBottomNavigation extends StatelessWidget {
                                   child: InkWell(
                                     key: ValueKey('navigation-$i'),
                                     onTap: () => onSelected(i),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                     child: ConstrainedBox(
-                                      constraints: const BoxConstraints(minHeight: 48),
+                                      constraints: const BoxConstraints(minHeight: 56),
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 4),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            AnimatedContainer(
+                                              key: ValueKey('navigation-icon-$i'),
+                                              duration: const Duration(milliseconds: 180),
+                                              curve: Curves.easeOutCubic,
+                                              width: 46,
+                                              height: 36,
+                                              alignment: Alignment.center,
                                               decoration: BoxDecoration(
-                                                color: index == i ? colors.primaryContainer : Colors.transparent,
-                                                borderRadius: BorderRadius.circular(12),
+                                                gradient: index == i
+                                                    ? const LinearGradient(
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                        colors: [
+                                                          AppColors.darkEmerald,
+                                                          AppColors.emerald,
+                                                        ],
+                                                      )
+                                                    : null,
+                                                borderRadius: BorderRadius.circular(13),
+                                                border: index == i
+                                                    ? Border.all(
+                                                        color: AppColors.gold.withValues(alpha: .75),
+                                                      )
+                                                    : null,
+                                                boxShadow: index == i
+                                                    ? [
+                                                        BoxShadow(
+                                                          color: AppColors.darkEmerald.withValues(alpha: .16),
+                                                          blurRadius: 10,
+                                                          offset: const Offset(0, 3),
+                                                        ),
+                                                      ]
+                                                    : null,
                                               ),
                                               child: Icon(
                                                 index == i ? selected[i] : outline[i],
-                                                color: index == i ? colors.primary : colors.onSurfaceVariant,
+                                                size: 23,
+                                                color: index == i
+                                                    ? AppColors.goldLight
+                                                    : colors.onSurfaceVariant,
                                               ),
                                             ),
                                             if (!largeText) ...[
-                                              const SizedBox(height: 4),
+                                              const SizedBox(height: 5),
                                               Text(
                                                 labels[i],
+                                                maxLines: 2,
                                                 textAlign: TextAlign.center,
+                                                softWrap: true,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: index == i ? FontWeight.w700 : FontWeight.w500,
+                                                  fontSize: 11.5,
+                                                  height: 1.12,
+                                                  fontWeight: index == i ? FontWeight.w800 : FontWeight.w600,
                                                   color: index == i ? colors.primary : colors.onSurfaceVariant,
                                                 ),
                                               ),
@@ -800,7 +836,14 @@ class _CompactBottomNavigation extends StatelessWidget {
                 if (largeText)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: Text(labels[index], textAlign: TextAlign.center),
+                    child: Text(
+                      labels[index],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
               ],
             );

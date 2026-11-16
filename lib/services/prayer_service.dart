@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import 'app_store.dart';
+import 'review_reminder_plan.dart';
 
 const prayerKeys = ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'];
 const prayerId = ['Subuh', 'Zuhur', 'Asar', 'Magrib', 'Isya'];
@@ -49,7 +50,27 @@ class PrayerService {
   final notifications = FlutterLocalNotificationsPlugin();
   bool notificationReady = false;
   int scheduleGeneration = 0;
+  int reviewGeneration = 0;
+  String reviewFingerprint = '';
   List<Map<String, dynamic>> cities = [];
+
+  String get _reviewSignature => jsonEncode([
+    store.get<bool>('reviewNotifications', false),
+    store.map('progress'),
+    store.map('reviews'),
+  ]);
+
+  void _onStoreChanged() {
+    final latest = _reviewSignature;
+    if (latest == reviewFingerprint) return;
+    reviewFingerprint = latest;
+    scheduleReviewNotifications().catchError((Object _) {});
+  }
+
+  void dispose() {
+    store.removeListener(_onStoreChanged);
+    client.close();
+  }
   Future<void> initialize() async {
     cities = (jsonDecode(
       await rootBundle.loadString('assets/data/cities.json'),
@@ -67,6 +88,8 @@ class PrayerService {
         notificationReady = false;
       }
     }
+    reviewFingerprint = _reviewSignature;
+    store.addListener(_onStoreChanged);
   }
 
   Future<PrayerDay> day(String city, DateTime date) async {
@@ -124,6 +147,43 @@ class PrayerService {
         false;
   }
 
+  /// Refresh review reminders without touching existing prayer schedules.
+  Future<void> scheduleReviewNotifications() async {
+    if (!notificationReady ||
+        kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    final generation = ++reviewGeneration;
+    for (var i = 0; i < 7; i++) {
+      await notifications.cancel(id: 1000 + i);
+      if (generation != reviewGeneration) return;
+    }
+    if (!store.get<bool>('reviewNotifications', false)) return;
+    final en = store.get('language', 'id') == 'en';
+    for (final reminder in upcomingReviewReminders(store, DateTime.now())) {
+      if (generation != reviewGeneration) return;
+      await notifications.zonedSchedule(
+        id: reminder.id,
+        scheduledDate: tz.TZDateTime.from(reminder.when, tz.local),
+        title: en ? 'Time to review Quran' : 'Waktunya murajaah',
+        body: en
+            ? '${reminder.count} verses are due for review today.'
+            : '${reminder.count} ayat perlu diulang hari ini.',
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'murajaah',
+            'Pengingat Murajaah',
+            channelDescription: 'Pengingat hafalan Al-Quran yang perlu diulang',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    }
+  }
+
   Future<void> schedule() async {
     if (!notificationReady ||
         kIsWeb ||
@@ -132,6 +192,7 @@ class PrayerService {
     }
     final generation = ++scheduleGeneration;
     await notifications.cancelAll();
+    await scheduleReviewNotifications();
     if (!store.get('notifications', false) || store.get('city', '').isEmpty) {
       return;
     }
