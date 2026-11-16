@@ -111,34 +111,45 @@ class ProgressPage extends StatelessWidget {
                 minHeight: 8,
                 borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(height: 12),
-      DropdownButton<int>(
-        value: s.store.get('goal', 5),
-        items: [1, 3, 5, 10, 20]
-            .map(
-              (n) => DropdownMenuItem(
-                value: n,
-                child: Text('$n ${c.t('ayat per hari', 'verses per day')}'),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<int>(
+                key: ValueKey('daily-goal-${s.store.get<int>('goal', 5)}'),
+                initialValue: s.store.get<int>('goal', 5),
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: c.t('Ayat per hari', 'Verses per day'),
+                  prefixIcon: const Icon(Icons.flag_outlined),
+                ),
+                items: [1, 3, 5, 10, 20]
+                    .map(
+                      (n) => DropdownMenuItem(
+                        value: n,
+                        child: Text('$n ${c.t('ayat per hari', 'verses per day')}'),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => perform(c, () => s.store.changeDailyGoal(v!)),
               ),
-            )
-            .toList(),
-        onChanged: (v) => perform(c, () => s.store.changeDailyGoal(v!)),
-      ),
-      Text(
-        daily >= s.store.get<int>('goal', 5)
-            ? c.t('Target hari ini tercapai', "Today's goal reached")
-            : c.t('Target hari ini belum tercapai', "Today's goal not reached"),
-      ),
-      OutlinedButton.icon(
-        onPressed: () => Navigator.push(
-          c,
-          MaterialPageRoute<void>(builder: (_) => const PracticeCalendar()),
-        ),
-        icon: const Icon(Icons.calendar_month),
-        label: Text(
-          c.t('Kalender & hasil latihan', 'Calendar & practice results'),
-        ),
-      ),
+              const SizedBox(height: 12),
+              Text(
+                daily >= s.store.get<int>('goal', 5)
+                    ? c.t('Target hari ini tercapai', "Today's goal reached")
+                    : c.t('Target hari ini belum tercapai', "Today's goal not reached"),
+                style: Theme.of(c).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(c).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.push(
+                  c,
+                  MaterialPageRoute<void>(builder: (_) => const PracticeCalendar()),
+                ),
+                icon: const Icon(Icons.calendar_month),
+                label: Text(
+                  c.t('Kalender & hasil latihan', 'Calendar & practice results'),
+                ),
+              ),
             ],
           ),
         ),

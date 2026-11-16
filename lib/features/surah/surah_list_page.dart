@@ -64,9 +64,10 @@ class _SurahListPageState extends State<SurahListPage> {
                           ),
                         ),
                         child: ListTile(
+                          key: ValueKey('memorize-surah-${s.number}'),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 9,
+                            vertical: 12,
                           ),
                           leading: CircleAvatar(
                             backgroundColor: Theme.of(c)
@@ -83,27 +84,28 @@ class _SurahListPageState extends State<SurahListPage> {
                             s.name,
                             style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
-                          subtitle: Text('${s.count} ${c.t('ayat', 'verses')}'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 125,
-                                ),
-                                child: Text(
-                                  s.arabic,
-                                  textDirection: TextDirection.rtl,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTypography.arabic.copyWith(
-                                    fontSize: 19,
-                                    color: Theme.of(c).colorScheme.primary,
-                                  ),
+                              const SizedBox(height: 4),
+                              Text('${s.count} ${c.t('ayat', 'verses')}'),
+                              const SizedBox(height: 8),
+                              Text(
+                                s.arabic,
+                                textDirection: TextDirection.rtl,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.arabic.copyWith(
+                                  fontSize: 19,
+                                  height: 1.6,
+                                  color: Theme.of(c).colorScheme.primary,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.chevron_right_rounded, size: 18),
                             ],
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            size: 20,
                           ),
                           onTap: () => Navigator.push(
                             c,
