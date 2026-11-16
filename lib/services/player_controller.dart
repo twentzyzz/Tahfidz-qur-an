@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import 'quran_repository.dart';
 import 'audio_offline_service.dart';
@@ -74,9 +75,20 @@ class PlayerController extends ChangeNotifier {
         uris.add(cached ?? Uri.parse(remote!));
       }
       if (token != generation) return;
+      // MediaItem tags let lock-screen and notification controls display
+      // accurate verse/reciter details for downloaded and streaming audio.
       final sources = [
         for (var round = 0; round < repeat; round++)
-          for (final uri in uris) AudioSource.uri(uri),
+          for (var verseIndex = 0; verseIndex < input.length; verseIndex++)
+            AudioSource.uri(
+              uris[verseIndex],
+              tag: MediaItem(
+                id: '$voice:${input[verseIndex].ref}:$round',
+                album: 'Tahfidz Quran • Surah ${input[verseIndex].surah}',
+                title: 'Ayat ${input[verseIndex].number}',
+                artist: qaris[voice] ?? 'Qari',
+              ),
+            ),
       ];
       verses = input;
       repeats = repeat;
