@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppIcons {
+  // All five tabs share one outlined/rounded Material icon family.
+  // Reading, juz sections and memorization have deliberately distinct symbols.
   static const navigation = [
     Icons.home_outlined,
     Icons.menu_book_outlined,
-    Icons.auto_stories_outlined,
-    Icons.bookmark_border_rounded,
+    Icons.library_books_outlined,
+    Icons.psychology_outlined,
     Icons.insights_outlined,
   ];
   static const selectedNavigation = [
     Icons.home_rounded,
     Icons.menu_book_rounded,
-    Icons.auto_stories_rounded,
-    Icons.bookmark_rounded,
+    Icons.library_books_rounded,
+    Icons.psychology_rounded,
     Icons.insights_rounded,
   ];
   static const audio = Icons.headphones_rounded;
