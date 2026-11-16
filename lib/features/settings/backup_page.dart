@@ -45,6 +45,7 @@ class _BackupPageState extends State<BackupPage> {
         message(context.t('File backup berhasil disimpan.', 'Backup file saved.'));
       }
     } catch (_) {
+      if (!mounted) return;
       message(context.t('Gagal menyimpan file backup.', 'Could not save backup file.'));
     } finally {
       if (mounted) setState(() => busy = false);
@@ -63,6 +64,7 @@ class _BackupPageState extends State<BackupPage> {
         ));
       }
     } catch (_) {
+      if (!mounted) return;
       message(context.t('Gagal menyalin backup.', 'Could not copy backup.'));
     }
   }
