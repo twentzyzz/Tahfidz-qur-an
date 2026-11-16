@@ -72,7 +72,7 @@ class _ReviewPageState extends State<ReviewPage> {
     String verseTitle(String ref) {
       final parts = ref.split(':');
       final chapter = session.quran.chapters[int.parse(parts[0]) - 1];
-      return '${chapter.name} • ${c.t('Ayat', 'Verse')} ${parts[1]}';
+      return '${chapter.name} • ${parts[1]}';
     }
 
     String dueDate(String date) {
@@ -208,6 +208,14 @@ class _ReviewPageState extends State<ReviewPage> {
                 icon: Icons.today_rounded,
                 title: c.t('Murajaah hari ini', "Today's review"),
                 count: due.length,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${due.length} ${c.t('ayat perlu diulang', 'verses due')}',
+                style: TextStyle(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 12),
               if (loading) ...[
