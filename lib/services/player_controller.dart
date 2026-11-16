@@ -83,7 +83,7 @@ class PlayerController extends ChangeNotifier {
             AudioSource.uri(
               uris[verseIndex],
               tag: MediaItem(
-                id: '${voice}:${input[verseIndex].ref}:$round',
+                id: '$voice:${input[verseIndex].ref}:$round',
                 album: 'Tahfidz Quran • Surah ${input[verseIndex].surah}',
                 title: 'Ayat ${input[verseIndex].number}',
                 artist: qaris[voice] ?? 'Qari',

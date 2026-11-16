@@ -34,13 +34,8 @@ jobs:
           cache: true
       - name: Prepare verified offline speech model
         run: python3 tool/prepare_offline_model.py
-      # Temporary bootstrap: show only changes to the public lockfile.
-      - name: Resolve background audio dependency (temporary)
-        run: |
-          flutter pub get
-          echo BEGIN_LOCKFILE_DIFF
-          git diff -- pubspec.lock
-          echo END_LOCKFILE_DIFF
+      - name: Install dependencies from lockfile
+        run: flutter pub get --enforce-lockfile
       - name: Analyze Dart code
         run: flutter analyze
       - name: Run tests
