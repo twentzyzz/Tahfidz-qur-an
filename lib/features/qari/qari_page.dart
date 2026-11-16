@@ -5,6 +5,7 @@ import '../../l10n/app_strings.dart';
 import '../../services/player_controller.dart';
 import '../../widgets/common.dart';
 import '../../widgets/mini_player.dart';
+import '../audio/offline_audio_page.dart';
 import 'qari_avatar.dart';
 export 'qari_avatar.dart';
 
@@ -72,6 +73,21 @@ class _QariPageState extends State<QariPage> {
                   'Preview Al-Fatihah and choose a voice for your memorization.',
                 ),
                 style: TextStyle(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                key: const Key('manage-offline-audio'),
+                onPressed: () => Navigator.push(
+                  c,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const OfflineAudioPage(),
+                  ),
+                ),
+                icon: const Icon(Icons.download_for_offline_outlined),
+                label: Text(c.t(
+                  'Kelola audio offline',
+                  'Manage offline audio',
+                )),
               ),
               const SizedBox(height: 24),
               TextField(
