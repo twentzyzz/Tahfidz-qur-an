@@ -18,7 +18,10 @@ void main() {
     await tester.tap(find.text('Qari & audio'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('manage-offline-audio')));
-    await tester.pumpAndSettle();
+    // This smoke test checks routing. Native storage has no plugin backing in
+    // Flutter widget tests, so its loading spinner must not be pumpAndSettle'd.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(OfflineAudioPage), findsOneWidget);
     expect(find.text('Audio murottal offline'), findsOneWidget);
     expect(tester.takeException(), isNull);
