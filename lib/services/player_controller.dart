@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'quran_repository.dart';
+import 'audio_offline_service.dart';
 
 const qaris = {
   '01': 'Abdullah Al-Juhany',
@@ -15,9 +16,10 @@ const qaris = {
 };
 
 class PlayerController extends ChangeNotifier {
-  PlayerController({AudioPlayer Function()? createPlayer})
+  PlayerController({AudioPlayer Function()? createPlayer, this.offlineAudio})
     : _factory = createPlayer ?? AudioPlayer.new;
   final AudioPlayer Function() _factory;
+  final AudioOfflineService? offlineAudio;
   AudioPlayer? _engine;
   AudioPlayer get engine => _engine ??= createEngine();
   List<Verse> verses = [];
@@ -61,12 +63,21 @@ class PlayerController extends ChangeNotifier {
     notifyListeners();
     try {
       await engine.stop();
-      final sources = expanded(input, repeat).map((v) {
-        final url = v.audio[voice];
-        if (url == null) throw StateError('Audio unavailable');
-        return AudioSource.uri(Uri.parse(url));
-      }).toList();
+      // Only complete cached files are playable; otherwise stream as before.
+      final uris = <Uri>[];
+      for (final verse in input) {
+        final cached = await offlineAudio?.cachedUri(verse, voice);
+        final remote = verse.audio[voice];
+        if (cached == null && remote == null) {
+          throw StateError('Audio unavailable');
+        }
+        uris.add(cached ?? Uri.parse(remote!));
+      }
       if (token != generation) return;
+      final sources = [
+        for (var round = 0; round < repeat; round++)
+          for (final uri in uris) AudioSource.uri(uri),
+      ];
       verses = input;
       repeats = repeat;
       qari = voice;

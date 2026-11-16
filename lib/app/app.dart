@@ -11,6 +11,7 @@ import '../services/app_store.dart';
 import '../services/practice_store.dart';
 import '../services/quran_repository.dart';
 import '../services/player_controller.dart';
+import '../services/audio_offline_service.dart';
 import '../services/prayer_service.dart';
 import '../features/home/home_page.dart';
 import 'session.dart';
@@ -25,6 +26,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
   AppStore? store;
   final quran = QuranRepository();
   PlayerController? player;
+  AudioOfflineService? offlineAudio;
   PrayerService? prayer;
   bool failed = false;
   @override
@@ -66,7 +68,8 @@ class _TahfidzAppState extends State<TahfidzApp> {
       setState(() {
         store = s;
         prayer = p;
-        player = PlayerController();
+        audioOffline = AudioOfflineService();
+        player = PlayerController(offlineAudio: audioOffline);
       });
     } catch (_) {
       if (mounted) setState(() => failed = true);
@@ -76,6 +79,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
   @override
   void dispose() {
     player?.dispose();
+    audioOffline?.dispose();
     store?.dispose();
     prayer?.dispose();
     super.dispose();
@@ -105,6 +109,7 @@ class _TahfidzAppState extends State<TahfidzApp> {
         store: store!,
         quran: quran,
         player: player!,
+        audioOffline: audioOffline!,
         prayer: prayer!,
         child: MaterialApp(
           title: 'Tahfidz Quran',
