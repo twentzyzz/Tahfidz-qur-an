@@ -270,7 +270,7 @@ class _Dashboard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 15),
             Container(
               key: const Key('home-premium-hero'),
               clipBehavior: Clip.antiAlias,
@@ -408,45 +408,7 @@ class _Dashboard extends StatelessWidget {
                       backgroundColor: Colors.white24,
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .10),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: AppColors.goldLight.withValues(alpha: .33),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.verified_rounded,
-                                size: 16, color: AppColors.goldLight),
-                            const SizedBox(width: 7),
-                            Flexible(
-                              child: Text(
-                                '$done / 6236 ${context.t('ayat hafal', 'verses memorized')}',
-                                softWrap: true,
-                                maxLines: 3,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.goldLight,
