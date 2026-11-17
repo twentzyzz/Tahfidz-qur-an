@@ -18,6 +18,20 @@ class AppStore extends ChangeNotifier {
   Future<void> set(String key, dynamic value) =>
       update((next) => next[key] = value);
 
+  /// Persist hour and minute atomically to avoid rescheduling at a half-updated time.
+  Future<void> changeReviewReminderTime(int hour, int minute) {
+    if (hour < 0 || hour > 23) {
+      throw RangeError.range(hour, 0, 23, 'hour');
+    }
+    if (minute < 0 || minute > 59) {
+      throw RangeError.range(minute, 0, 59, 'minute');
+    }
+    return update((next) {
+      next['reviewReminderHour'] = hour;
+      next['reviewReminderMinute'] = minute;
+    });
+  }
+
   /// Serialize whole-document writes and publish only successfully saved state.
   Future<void> update(void Function(Map<String, dynamic>) change) {
     final operation = _pending.catchError((Object _) {}).then((_) async {

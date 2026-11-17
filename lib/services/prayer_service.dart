@@ -56,6 +56,8 @@ class PrayerService {
 
   String get _reviewSignature => jsonEncode([
     store.get<bool>('reviewNotifications', false),
+    store.get<int>('reviewReminderHour', 8),
+    store.get<int>('reviewReminderMinute', 0),
     store.map('progress'),
     store.map('reviews'),
   ]);

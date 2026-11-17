@@ -19,6 +19,7 @@ void main() {
   test('Backup round trip restores memorization, bookmarks and settings', () async {
     await store.set('language', 'en');
     await store.set('reviewNotifications', true);
+    await store.changeReviewReminderTime(5, 45);
     await store.mark('1:1', 'done', at: DateTime(2026, 11, 16));
     await store.bookmark('1:1');
     final backup = BackupService.export(
@@ -35,6 +36,8 @@ void main() {
     expect(store.map('bookmarks')['1:1'], true);
     expect(store.get('language', ''), 'en');
     expect(store.get('reviewNotifications', false), isTrue);
+    expect(store.get<int>('reviewReminderHour', -1), 5);
+    expect(store.get<int>('reviewReminderMinute', -1), 45);
     final reloaded = AppStore(store.prefs);
     expect(reloaded.data, preview.data);
     reloaded.dispose();
@@ -92,5 +95,57 @@ void main() {
     expect(upcomingReviewReminders(
       store, DateTime(2026, 11, 17, 9),
     ), isEmpty);
+  });
+
+  test('Custom reminder time is persisted and respects today's cutoff', () async {
+    await store.mark('1:1', 'done', at: DateTime(2026, 11, 16));
+    await store.changeReviewReminderTime(5, 45);
+    final saved = AppStore(store.prefs);
+    expect(ReviewReminderTime.fromStore(saved).label, '05.45');
+    saved.dispose();
+
+    final before = upcomingReviewReminders(
+      store, DateTime(2026, 11, 17, 5, 30),
+    );
+    expect(before.first.id, 1000);
+    expect(before.first.when, DateTime(2026, 11, 17, 5, 45));
+    final after = upcomingReviewReminders(
+      store, DateTime(2026, 11, 17, 6),
+    );
+    expect(after.first.id, 1001);
+    expect(after.first.when, DateTime(2026, 11, 18, 5, 45));
+
+    await store.changeReviewReminderTime(20, 15);
+    expect(ReviewReminderTime.fromStore(store).label, '20.15');
+    final evening = upcomingReviewReminders(
+      store, DateTime(2026, 11, 17, 6),
+    );
+    expect(evening.first.id, 1000);
+    expect(evening.first.when, DateTime(2026, 11, 17, 20, 15));
+  });
+
+  test('Default 08:00 is retained and invalid reminder times are rejected', () async {
+    expect(ReviewReminderTime.fromStore(store).label, '08.00');
+    expect(
+      () => store.changeReviewReminderTime(24, 0),
+      throwsRangeError,
+    );
+    expect(
+      () => store.changeReviewReminderTime(8, 60),
+      throwsRangeError,
+    );
+    expect(ReviewReminderTime.fromStore(store).label, '08.00');
+    await store.set('reviewReminderHour', 99);
+    expect(ReviewReminderTime.fromStore(store).label, '08.00');
+  });
+
+  test('Backup rejects out-of-range custom reminder settings', () async {
+    await store.set('reviewReminderHour', 24);
+    final badHour = BackupService.export(store);
+    expect(() => BackupService.inspect(badHour), throwsFormatException);
+    await store.set('reviewReminderHour', 5);
+    await store.set('reviewReminderMinute', -1);
+    final badMinute = BackupService.export(store);
+    expect(() => BackupService.inspect(badMinute), throwsFormatException);
   });
 }
