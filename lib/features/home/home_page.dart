@@ -291,14 +291,56 @@ class _Dashboard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Row(
+                  Positioned(
+                    right: -56,
+                    top: -70,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 204,
+                        height: 204,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.goldLight.withValues(alpha: .25),
+                            width: 1.3,
+                          ),
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 147,
+                            height: 147,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.goldLight.withValues(alpha: .14),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 12,
+                    bottom: -28,
+                    child: IgnorePointer(
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        color: AppColors.goldLight.withValues(alpha: .07),
+                        size: 95,
+                      ),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: .15),
                             borderRadius: BorderRadius.circular(20),
@@ -418,6 +460,8 @@ class _Dashboard extends StatelessWidget {
                           ? context.t('Lanjutkan', 'Continue')
                           : context.t('Mulai Menghafal', 'Start memorizing'),
                     ),
+                  ),
+                    ],
                   ),
                 ],
               ),
