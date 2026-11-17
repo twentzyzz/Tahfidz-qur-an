@@ -97,7 +97,7 @@ void main() {
     ), isEmpty);
   });
 
-  test('Custom reminder time is persisted and respects today's cutoff', () async {
+  test('Custom reminder time is persisted and respects the daily cutoff', () async {
     await store.mark('1:1', 'done', at: DateTime(2026, 11, 16));
     await store.changeReviewReminderTime(5, 45);
     final saved = AppStore(store.prefs);
