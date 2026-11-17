@@ -208,12 +208,33 @@ class _Dashboard extends StatelessWidget {
             32,
           ),
           children: [
-            Text(
-              context.t('Assalamu’alaikum', 'Assalamu alaikum'),
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(color: cs.onSurfaceVariant),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: .09),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: cs.primary.withValues(alpha: .17),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome_rounded, size: 15, color: cs.primary),
+                    const SizedBox(width: 7),
+                    Text(
+                      context.t('Assalamu’alaikum', 'Assalamu alaikum'),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: cs.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             Text(
               context.t(
                 'Setiap ayat, satu langkah lebih dekat',
@@ -221,20 +242,34 @@ class _Dashboard extends StatelessWidget {
               ),
               key: const Key('home-greeting-headline'),
               softWrap: true,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                height: 1.22,
-                letterSpacing: -.45,
-                color: cs.primary,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                height: 1.15,
+                letterSpacing: -.8,
+                color: cs.onSurface,
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              MaterialLocalizations.of(context).formatFullDate(DateTime.now()),
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.calendar_today_rounded,
+                    size: 14, color: cs.onSurfaceVariant),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    MaterialLocalizations.of(context).formatFullDate(DateTime.now()),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
             Container(
+              key: const Key('home-premium-hero'),
+              clipBehavior: Clip.antiAlias,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.hero),
@@ -327,11 +362,49 @@ class _Dashboard extends StatelessWidget {
                       backgroundColor: Colors.white24,
                     ),
                   ],
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .10),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: AppColors.goldLight.withValues(alpha: .33),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.verified_rounded,
+                                size: 16, color: AppColors.goldLight),
+                            const SizedBox(width: 7),
+                            Text(
+                              '$done / 6236 ${context.t('ayat hafal', 'verses memorized')}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.goldLight,
                       foregroundColor: AppColors.darkEmerald,
+                      minimumSize: const Size(148, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     onPressed: hasMemo
                         ? () => onResume(
@@ -354,13 +427,26 @@ class _Dashboard extends StatelessWidget {
               Card(
                 margin: EdgeInsets.zero,
                 child: ListTile(
+                  key: const Key('home-continue-reading'),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 8,
+                    vertical: 10,
                   ),
-                  leading: const Icon(Icons.bookmark_added_outlined),
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cs.primaryContainer,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(Icons.bookmark_added_rounded, color: cs.primary),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios_rounded,
+                    size: 16, color: cs.primary),
                   title: Text(
                     context.t('Lanjutkan Bacaan', 'Continue reading'),
+                    style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                   subtitle: Text(
                     '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
@@ -391,11 +477,21 @@ class _Dashboard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 5),
+            Text(
+              context.t(
+                'Pilih aktivitas untuk menemani hafalanmu.',
+                'Choose a way to read, listen or practice.',
+              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
             LayoutBuilder(
               builder: (context, constraints) {
-                final singleColumn = constraints.maxWidth < 300 ||
-                    MediaQuery.textScalerOf(context).scale(16) > 24;
+                final singleColumn = constraints.maxWidth < 275 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 25;
                 const gap = 12.0;
                 final width = singleColumn
                     ? constraints.maxWidth
@@ -409,14 +505,18 @@ class _Dashboard extends StatelessWidget {
                       child: _Shortcut(
                         icon: Icons.menu_book_rounded,
                         title: context.t('Daftar Surah', 'Surah list'),
+                        subtitle: context.t('114 surah untuk dibaca', 'Explore 114 surahs'),
+                        tone: 0,
                         onTap: onSurahs,
                       ),
                     ),
                     SizedBox(
                       width: width,
                       child: _Shortcut(
-                        icon: Icons.auto_stories_rounded,
+                        icon: Icons.library_books_rounded,
                         title: '30 Juz',
+                        subtitle: context.t('Jelajahi tiap juz', 'Explore each juz'),
+                        tone: 1,
                         onTap: onJuz,
                       ),
                     ),
@@ -425,14 +525,18 @@ class _Dashboard extends StatelessWidget {
                       child: _Shortcut(
                         icon: Icons.headphones_rounded,
                         title: context.t('Audio Murottal', 'Quran audio'),
+                        subtitle: context.t('Dengarkan qari pilihan', 'Listen to your reciter'),
+                        tone: 2,
                         onTap: onQari,
                       ),
                     ),
                     SizedBox(
                       width: width,
                       child: _Shortcut(
-                        icon: Icons.bookmark_border_rounded,
+                        icon: Icons.psychology_rounded,
                         title: context.t('Latihan Hafalan', 'Memorize'),
+                        subtitle: context.t('Ulang dan kuatkan hafalan', 'Practice and remember'),
+                        tone: 3,
                         onTap: onMemorize,
                       ),
                     ),
@@ -649,52 +753,109 @@ class _Dashboard extends StatelessWidget {
 }
 
 class _Shortcut extends StatelessWidget {
-  const _Shortcut({required this.icon, required this.title, required this.onTap});
+  const _Shortcut({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.tone,
+    required this.onTap,
+  });
+
   final IconData icon;
   final String title;
+  final String subtitle;
+  final int tone;
   final VoidCallback onTap;
+
   @override
-  Widget build(BuildContext c) {
-    final cs = Theme.of(c).colorScheme;
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final tint = dark
+        ? (tone.isEven
+            ? const Color(0xFF203C32)
+            : const Color(0xFF352F24))
+        : (tone.isEven
+            ? const Color(0xFFEAF5EF)
+            : const Color(0xFFFFF4E1));
+    final accent = dark
+        ? AppColors.goldLight
+        : tone.isEven
+            ? AppColors.darkEmerald
+            : const Color(0xFF85632E);
+
     return Material(
-      color: cs.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 120),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.outlineVariant),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFBFA878).withValues(alpha: .09),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+      key: ValueKey('home-shortcut-$tone'),
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [tint, Color.lerp(tint, cs.surface, .68)!],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: dark ? cs.outlineVariant : AppColors.goldBorder,
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 154),
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: cs.surface.withValues(alpha: dark ? .14 : .85),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: accent.withValues(alpha: .15),
+                          ),
+                        ),
+                        child: Icon(icon, size: 24, color: accent),
+                      ),
+                      const Spacer(),
+                      Icon(Icons.arrow_outward_rounded,
+                          color: accent, size: 18),
+                    ],
                   ),
-                  child: Icon(icon, size: 24, color: cs.primary),
-                ),
-                const Spacer(),
-                Icon(Icons.arrow_outward_rounded, color: cs.onSurfaceVariant, size: 18),
-              ]),
-              const SizedBox(height: 14),
-              Text(title, maxLines: 2, style: Theme.of(c).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
-            ],
+                  const SizedBox(height: 17),
+                  Text(
+                    title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      height: 1.2,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 11.5,
+                      height: 1.25,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -762,6 +923,18 @@ class _CompactBottomNavigation extends StatelessWidget {
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
+                                            AnimatedContainer(
+                                              duration: const Duration(milliseconds: 180),
+                                              width: index == i ? 25 : 8,
+                                              height: 3,
+                                              margin: const EdgeInsets.only(bottom: 6),
+                                              decoration: BoxDecoration(
+                                                color: index == i
+                                                    ? AppColors.gold
+                                                    : Colors.transparent,
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
                                             AnimatedContainer(
                                               key: ValueKey('navigation-icon-$i'),
                                               duration: const Duration(milliseconds: 180),
