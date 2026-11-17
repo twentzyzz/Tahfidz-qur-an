@@ -37,8 +37,8 @@ void main() {
     await tester.tap(tile);
     await tester.pumpAndSettle();
     expect(find.byType(TimePickerDialog), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
+    // TimePickerDialog is a modal without an AppBar back button.
+    // Dispose the widget tree instead of invoking tester.pageBack().
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
