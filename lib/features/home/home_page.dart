@@ -223,11 +223,15 @@ class _Dashboard extends StatelessWidget {
                   children: [
                     Icon(Icons.auto_awesome_rounded, size: 15, color: cs.primary),
                     const SizedBox(width: 7),
-                    Text(
-                      context.t('Assalamu’alaikum', 'Assalamu alaikum'),
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w800,
+                    Flexible(
+                      child: Text(
+                        context.t('Assalamu’alaikum', 'Assalamu alaikum'),
+                        softWrap: true,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: cs.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ],
@@ -425,12 +429,16 @@ class _Dashboard extends StatelessWidget {
                             const Icon(Icons.verified_rounded,
                                 size: 16, color: AppColors.goldLight),
                             const SizedBox(width: 7),
-                            Text(
-                              '$done / 6236 ${context.t('ayat hafal', 'verses memorized')}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                            Flexible(
+                              child: Text(
+                                '$done / 6236 ${context.t('ayat hafal', 'verses memorized')}',
+                                softWrap: true,
+                                maxLines: 3,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
