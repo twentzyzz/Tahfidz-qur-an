@@ -116,6 +116,18 @@ class BackupService {
         data['reviewNotifications'] is! bool) {
       throw const FormatException('Notifikasi murajaah tidak valid.');
     }
+    if (data['reviewReminderHour'] != null &&
+        (data['reviewReminderHour'] is! int ||
+            (data['reviewReminderHour'] as int) < 0 ||
+            (data['reviewReminderHour'] as int) > 23)) {
+      throw const FormatException('Jam pengingat murajaah tidak valid.');
+    }
+    if (data['reviewReminderMinute'] != null &&
+        (data['reviewReminderMinute'] is! int ||
+            (data['reviewReminderMinute'] as int) < 0 ||
+            (data['reviewReminderMinute'] as int) > 59)) {
+      throw const FormatException('Menit pengingat murajaah tidak valid.');
+    }
     if (data['language'] != null &&
         !['id', 'en'].contains(data['language'])) {
       throw const FormatException('Bahasa tidak valid.');

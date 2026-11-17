@@ -11,6 +11,7 @@ import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import '../../widgets/common.dart';
 import '../../services/prayer_service.dart';
+import '../../services/review_reminder_plan.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -35,6 +36,42 @@ class _SettingsPageState extends State<SettingsPage> {
         await s.store.set('city', chosen);
         await s.prayer.schedule();
       });
+    }
+  }
+
+  Future<void> chooseReviewReminderTime() async {
+    if (busy) return;
+    final session = Session.of(context);
+    final selected = ReviewReminderTime.fromStore(session.store);
+    final choice = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: selected.hour, minute: selected.minute),
+      helpText: context.t('Jam pengingat murajaah', 'Review reminder time'),
+      builder: (pickerContext, child) => MediaQuery(
+        data: MediaQuery.of(pickerContext).copyWith(
+          alwaysUse24HourFormat: true,
+        ),
+        child: child!,
+      ),
+    );
+    if (choice == null || !mounted) return;
+    setState(() => busy = true);
+    try {
+      await session.store.changeReviewReminderTime(choice.hour, choice.minute);
+      // The store listener also refreshes automatically on progress changes.
+      // Explicitly await this refresh so the new time is applied immediately.
+      await session.prayer.scheduleReviewNotifications();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.t(
+            'Jam pengingat gagal diterapkan. Coba lagi.',
+            'Unable to apply the reminder time. Please retry.',
+          )),
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
     }
   }
 
@@ -107,6 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
             .toString();
     final arabicSize = store.get<num>('arabicSize', 32).toDouble();
     final translationSize = store.get<num>('translationSize', 18).toDouble();
+    final reviewTime = ReviewReminderTime.fromStore(store);
 
     return Scaffold(
       appBar: AppBar(title: Text(c.t('Pengaturan', 'Settings'))),
@@ -353,8 +391,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     subtitle: Text(
                       c.t(
-                        'Pukul 08.00 jika ada ayat yang perlu diulang.',
-                        'At 8 AM when memorized verses are due.',
+                        'Sekitar pukul ${reviewTime.label} jika ada ayat yang perlu diulang.',
+                        'Around ${reviewTime.label} when memorized verses are due.',
                       ),
                     ),
                     value: store.get<bool>('reviewNotifications', false),
@@ -386,6 +424,27 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (mounted) setState(() => busy = false);
                       }
                     },
+                  ),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    key: const Key('settings-review-time'),
+                    contentPadding: EdgeInsets.zero,
+                    leading: const _SettingIcon(icon: Icons.schedule_rounded),
+                    title: Text(
+                      c.t('Jam pengingat murajaah', 'Review reminder time'),
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    subtitle: Text(
+                      c.t(
+                        'Pukul ${reviewTime.label} • waktu perangkat',
+                        '${reviewTime.label} • device local time',
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.edit_calendar_outlined,
+                      color: colors.primary,
+                    ),
+                    onTap: busy ? null : chooseReviewReminderTime,
                   ),
                   const Divider(height: 24),
                   ListTile(
