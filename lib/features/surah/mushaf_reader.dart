@@ -313,7 +313,6 @@ class _MushafReaderState extends State<MushafReader> {
 
   Widget _leaf(BuildContext context, int page) {
     final session = Session.of(context);
-    final colors = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final chapter = session.quran.chapters[widget.verses.first.surah - 1];
     final arabicSize =
