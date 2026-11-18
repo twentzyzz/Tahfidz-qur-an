@@ -615,7 +615,7 @@ class _MushafReaderState extends State<MushafReader> {
               );
               _reflowIfNeeded(budget);
               return KeyedSubtree(
-                key: ValueKey('mushaf-layout-${budget}'),
+                key: ValueKey('mushaf-layout-$budget'),
                 child: PageView.builder(
                   key: const Key('mushaf-page-view'),
                   controller: pages,
