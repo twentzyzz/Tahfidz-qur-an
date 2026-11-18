@@ -35,6 +35,22 @@ List<List<Verse>> mushafReadingLeaves(
   return result;
 }
 
+/// Estimate app reading-leaf size from available screen space and text size.
+/// Not a canonical printed mushaf page number or line break.
+int mushafCharacterBudget({
+  required double width,
+  required double height,
+  required double fontSize,
+  required double textScale,
+}) {
+  final effectiveFont = (fontSize * textScale).clamp(24.0, 100.0);
+  final textWidth = (width - 68).clamp(160.0, 900.0);
+  final textHeight = (height - 155).clamp(170.0, 1800.0);
+  final lines = textHeight / (effectiveFont * 2.05);
+  final charsPerLine = textWidth / (effectiveFont * .48);
+  return (lines * charsPerLine * .85).round().clamp(65, 650);
+}
+
 String _arabicDigits(int number) {
   const digits = '٠١٢٣٤٥٦٧٨٩';
   return number
@@ -61,9 +77,10 @@ class MushafReader extends StatefulWidget {
 }
 
 class _MushafReaderState extends State<MushafReader> {
-  late final List<List<Verse>> leaves;
+  late List<List<Verse>> leaves;
   late final List<TapGestureRecognizer> verseTaps;
-  late final PageController pages;
+  late PageController pages;
+  int? _characterBudget;
   late int currentLeaf;
   late Verse selectedVerse;
 
@@ -76,7 +93,7 @@ class _MushafReaderState extends State<MushafReader> {
       orElse: () => widget.verses.first,
     );
     currentLeaf = leaves.indexWhere((leaf) => leaf.contains(selectedVerse));
-    pages = PageController(initialPage: currentLeaf);
+    pages = PageController(initialPage: currentLeaf, keepPage: false);
     verseTaps = [
       for (final verse in widget.verses)
         TapGestureRecognizer()
@@ -94,6 +111,79 @@ class _MushafReaderState extends State<MushafReader> {
     }
     pages.dispose();
     super.dispose();
+  }
+
+  void _reflowIfNeeded(int budget) {
+    if (_characterBudget == budget) return;
+    _characterBudget = budget;
+    final old = pages;
+    leaves = mushafReadingLeaves(widget.verses, maxCharacters: budget);
+    currentLeaf = leaves.indexWhere((leaf) => leaf.contains(selectedVerse));
+    pages = PageController(initialPage: currentLeaf, keepPage: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+  }
+
+  void _showReadingSettings() {
+    final store = Session.of(context).store;
+    var size = store.get<num>('arabicSize', 32).toDouble().clamp(24.0, 56.0);
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: StatefulBuilder(
+          builder: (sheetContext, updateSheet) => Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sheetContext.t('Ukuran teks Arab', 'Arabic text size'),
+                  style: Theme.of(sheetContext).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  sheetContext.t(
+                    'Atur supaya setiap lembar nyaman dibaca.',
+                    'Choose a comfortable size for each leaf.',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ',
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.arabic.copyWith(fontSize: size),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.text_fields_rounded, size: 18),
+                    Expanded(
+                      child: Slider(
+                        key: const Key('mushaf-font-slider'),
+                        min: 24,
+                        max: 56,
+                        divisions: 16,
+                        value: size,
+                        label: size.round().toString(),
+                        onChanged: (value) => updateSheet(() => size = value),
+                        onChangeEnd: (value) => perform(
+                          sheetContext,
+                          () => store.set('arabicSize', value.round()),
+                        ),
+                      ),
+                    ),
+                    Text(size.round().toString()),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _remember(Verse verse) {
@@ -114,8 +204,8 @@ class _MushafReaderState extends State<MushafReader> {
     if (page < 0 || page >= leaves.length) return;
     pages.animateToPage(
       page,
-      duration: const Duration(milliseconds: 230),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeInOutCubic,
     );
   }
 
@@ -362,17 +452,33 @@ class _MushafReaderState extends State<MushafReader> {
                           ),
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      chapter.arabic,
-                      textDirection: TextDirection.rtl,
-                      style: AppTypography.arabic.copyWith(
-                        fontSize: 24,
-                        height: 1.65,
-                        color: dark ? AppColors.goldLight : AppColors.darkEmerald,
+                  if (page == 0)
+                    Center(
+                      child: Text(
+                        chapter.arabic,
+                        textDirection: TextDirection.rtl,
+                        style: AppTypography.arabic.copyWith(
+                          fontSize: 24,
+                          height: 1.65,
+                          color: dark
+                              ? AppColors.goldLight
+                              : AppColors.darkEmerald,
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        context.t(
+                          'Ayat ${leaves[page].first.number}–${leaves[page].last.number}',
+                          'Verses ${leaves[page].first.number}–${leaves[page].last.number}',
+                        ),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.labelSmall
+                            ?.copyWith(color: ink.withValues(alpha: .8)),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -479,6 +585,11 @@ class _MushafReaderState extends State<MushafReader> {
                 ),
               ),
               IconButton(
+                tooltip: context.t('Ukuran teks Arab', 'Arabic text size'),
+                icon: const Icon(Icons.text_fields_rounded),
+                onPressed: _showReadingSettings,
+              ),
+              IconButton(
                 tooltip: context.t(
                   'Putar seluruh surah',
                   'Play complete surah',
@@ -494,18 +605,49 @@ class _MushafReaderState extends State<MushafReader> {
           ),
         ),
         Expanded(
-          child: PageView.builder(
-            key: const Key('mushaf-page-view'),
-            controller: pages,
-            itemCount: leaves.length,
-            onPageChanged: (page) {
-              setState(() {
-                currentLeaf = page;
-                selectedVerse = leaves[page].first;
-              });
-              _remember(selectedVerse);
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final budget = mushafCharacterBudget(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                fontSize: session.store.get<num>('arabicSize', 32).toDouble(),
+                textScale: MediaQuery.textScalerOf(context).scale(1.0),
+              );
+              _reflowIfNeeded(budget);
+              return KeyedSubtree(
+                key: ValueKey('mushaf-layout-${budget}'),
+                child: PageView.builder(
+                  key: const Key('mushaf-page-view'),
+                  controller: pages,
+                  itemCount: leaves.length,
+                  pageSnapping: true,
+                  physics: const PageScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  onPageChanged: (page) {
+                    setState(() {
+                      currentLeaf = page;
+                      selectedVerse = leaves[page].first;
+                    });
+                    _remember(selectedVerse);
+                  },
+                  itemBuilder: _leaf,
+                ),
+              );
             },
-            itemBuilder: _leaf,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              key: const Key('mushaf-reading-progress'),
+              value: (currentLeaf + 1) / leaves.length,
+              minHeight: 3,
+              backgroundColor: colors.outlineVariant,
+              color: AppColors.gold,
+            ),
           ),
         ),
         Padding(
