@@ -77,4 +77,52 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+  testWidgets('30 Juz uses clean Arabic layout and compact memorization controls',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await boot(tester);
+    final context = tester.element(find.byType(Scaffold).first);
+    final session = Session.of(context);
+    await tester.runAsync(() => session.quran.juzVerses(1));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const SurahDetailPage(juz: 1),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('juz-compact-toolbar')), findsOneWidget);
+    expect(find.byKey(const ValueKey('juz-chapter-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('juz-arabic-1:1')), findsOneWidget);
+    final arabic = tester.widget<Container>(
+      find.byKey(const ValueKey('juz-arabic-1:1')),
+    );
+    expect(arabic.decoration, isNull);
+    expect(find.text('Al-Fatihah • 1'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('juz-mark-1:1')),
+      130,
+      scrollable: find.descendant(
+        of: find.byType(CustomScrollView),
+        matching: find.byType(Scrollable),
+      ).first,
+      maxScrolls: 16,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('juz-mark-1:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sudah hafal').last);
+    await tester.pumpAndSettle();
+    expect(session.store.map('progress')['1:1'], 'done');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
 }
