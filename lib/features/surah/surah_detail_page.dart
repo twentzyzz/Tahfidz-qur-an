@@ -654,6 +654,13 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 'Terjemahan Indonesia • EQuran.id',
                                 'Indonesian translation • EQuran.id',
                               ),
+                              style: widget.juz != null
+                                  ? Theme.of(c).textTheme.labelSmall?.copyWith(
+                                      color: Theme.of(c)
+                                          .colorScheme.onSurfaceVariant,
+                                      fontSize: 11,
+                                    )
+                                  : null,
                             ),
                             const SizedBox(height: 10),
                             Wrap(
@@ -714,6 +721,75 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 ),
                               ],
                             ),
+                            if (widget.juz != null) ...[
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: PopupMenuButton<String>(
+                                  key: ValueKey('juz-mark-${v.ref}'),
+                                  tooltip: c.t(
+                                    'Status hafalan',
+                                    'Memorization status',
+                                  ),
+                                  onSelected: (value) => perform(
+                                    c,
+                                    () => s.store.mark(v.ref, value),
+                                  ),
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 'learning',
+                                      child: Text(c.t('Sedang dihafal', 'Learning')),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'done',
+                                      child: Text(c.t('Sudah hafal', 'Memorized')),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'none',
+                                      child: Text(c.t('Reset', 'Reset')),
+                                    ),
+                                  ],
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          s.store.map('progress')[v.ref] == 'done'
+                                              ? Icons.check_circle_rounded
+                                              : s.store.map('progress')[v.ref] ==
+                                                      'learning'
+                                                  ? Icons.bookmark_added_outlined
+                                                  : Icons.flag_outlined,
+                                          size: 18,
+                                          color: Theme.of(c).colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: 7),
+                                        Text(
+                                          s.store.map('progress')[v.ref] == 'done'
+                                              ? c.t('Sudah hafal', 'Memorized')
+                                              : s.store.map('progress')[v.ref] ==
+                                                      'learning'
+                                                  ? c.t('Sedang dihafal', 'Learning')
+                                                  : c.t('Tandai hafalan', 'Mark memorization'),
+                                          style: Theme.of(c).textTheme.labelMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                                color: Theme.of(c)
+                                                    .colorScheme.onSurfaceVariant,
+                                              ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        const Icon(Icons.expand_more_rounded, size: 17),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ] else ...[
                             const SizedBox(height: 16),
                             Text(
                               c.t('Status hafalan', 'Memorization status'),
@@ -815,6 +891,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 );
                               },
                             ),
+                            ],
                           ],
 
         ),
