@@ -53,18 +53,18 @@ void main() {
         findsOneWidget,
       );
       await t.scrollUntilVisible(
-        find.byTooltip('Bookmark'),
+        find.byTooltip('Bookmark').first,
         150,
         scrollable: find.byType(Scrollable).last,
       );
-      await t.tap(find.byTooltip('Bookmark'));
+      await t.tap(find.byTooltip('Bookmark').first);
       await t.pumpAndSettle();
       await t.scrollUntilVisible(
-        find.text('Sudah hafal'),
+        find.text('Sudah hafal').first,
         150,
         scrollable: find.byType(Scrollable).last,
       );
-      await t.tap(find.text('Sudah hafal'));
+      await t.tap(find.text('Sudah hafal').first);
       await t.pumpAndSettle();
       await t.tap(find.byType(BackButton));
       await t.pumpAndSettle();
