@@ -16,6 +16,7 @@ void main() {
     await boot(tester);
     final context = tester.element(find.byType(Scaffold).first);
     final session = Session.of(context);
+    await tester.runAsync(() => session.quran.juzVerses(1));
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => const SurahDetailPage(juz: 1, initialVerse: 2),
@@ -56,6 +57,7 @@ void main() {
       (tester) async {
     await boot(tester);
     final context = tester.element(find.byType(Scaffold).first);
+    await tester.runAsync(() => Session.of(context).quran.juzVerses(1));
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => const SurahDetailPage(juz: 1),
