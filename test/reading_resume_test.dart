@@ -17,6 +17,9 @@ void main() {
     final session = Session.of(root);
     expect(session.quran.juzForVerse(2, 141), 1);
     expect(session.quran.juzForVerse(2, 142), 2);
+    expect(session.quran.juzForVerse(2, 252), 2);
+    expect(session.quran.juzForVerse(2, 253), 3);
+    expect(session.quran.juzForVerse(114, 6), 30);
     expect(session.quran.juzForVerse(115, 1), isNull);
     await tester.runAsync(() => session.quran.juzVerses(1));
 
