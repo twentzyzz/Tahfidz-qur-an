@@ -31,7 +31,17 @@ void main() {
     await tester.pumpAndSettle();
 
     final resume = find.byKey(const Key('home-continue-reading'));
-    await tester.ensureVisible(resume);
+    await tester.scrollUntilVisible(
+      resume,
+      240,
+      scrollable: find.descendant(
+        of: find.byKey(
+          const PageStorageKey('home-dashboard-phase-two'),
+        ),
+        matching: find.byType(Scrollable),
+      ).first,
+      maxScrolls: 20,
+    );
     await tester.pumpAndSettle();
     expect(
       find.descendant(
@@ -61,7 +71,17 @@ void main() {
     await tester.pumpAndSettle();
 
     final resume = find.byKey(const Key('home-continue-reading'));
-    await tester.ensureVisible(resume);
+    await tester.scrollUntilVisible(
+      resume,
+      240,
+      scrollable: find.descendant(
+        of: find.byKey(
+          const PageStorageKey('home-dashboard-phase-two'),
+        ),
+        matching: find.byType(Scrollable),
+      ).first,
+      maxScrolls: 20,
+    );
     await tester.pumpAndSettle();
     expect(
       find.descendant(
@@ -135,7 +155,17 @@ void main() {
     await session.store.set('last', {'surah': 1, 'verse': 2});
     await tester.pumpAndSettle();
     final resume = find.byKey(const Key('home-continue-reading'));
-    await tester.ensureVisible(resume);
+    await tester.scrollUntilVisible(
+      resume,
+      240,
+      scrollable: find.descendant(
+        of: find.byKey(
+          const PageStorageKey('home-dashboard-phase-two'),
+        ),
+        matching: find.byType(Scrollable),
+      ).first,
+      maxScrolls: 20,
+    );
     await tester.pumpAndSettle();
     expect(
       find.descendant(
