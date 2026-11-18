@@ -55,17 +55,21 @@ void main() {
     await tester.tap(find.byTooltip('Detail ayat'));
     await tester.pumpAndSettle();
     expect(find.text('Makna ayat'), findsOneWidget);
-    await Scrollable.ensureVisible(
-      tester.element(find.text('Sudah hafal')),
-      alignment: .5,
-      duration: Duration.zero,
+    await tester.scrollUntilVisible(
+      find.text('Sudah hafal'),
+      180,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('mushaf-verse-detail-list')),
+        matching: find.byType(Scrollable),
+      ).first,
+      maxScrolls: 20,
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sudah hafal'));
     await tester.pumpAndSettle();
     expect(session.store.map('progress')['1:2'], 'done');
 
-    await tester.pageBack();
+    Navigator.of(tester.element(find.byType(BottomSheet))).pop();
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
