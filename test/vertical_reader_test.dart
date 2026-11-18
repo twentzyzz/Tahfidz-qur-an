@@ -18,7 +18,7 @@ void main() {
     final session = Session.of(context);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const SurahDetailPage(number: 1, initialVerse: 2),
+        builder: (_) => const SurahDetailPage(juz: 1, initialVerse: 2),
       ),
     );
     await tester.pumpAndSettle();
@@ -58,7 +58,7 @@ void main() {
     final context = tester.element(find.byType(Scaffold).first);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const SurahDetailPage(number: 1),
+        builder: (_) => const SurahDetailPage(juz: 1),
       ),
     );
     await tester.pumpAndSettle();
