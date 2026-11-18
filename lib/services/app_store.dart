@@ -65,12 +65,13 @@ class AppStore extends ChangeNotifier {
     }
     return update((next) {
       next['last'] = {'surah': surah, 'verse': verse};
-      next['lastReader'] = {
+      final reader = <String, dynamic>{
         'mode': juz == null ? 'quran' : 'juz',
         'surah': surah,
         'verse': verse,
-        if (juz != null) 'juz': juz,
       };
+      if (juz != null) reader['juz'] = juz;
+      next['lastReader'] = reader;
     });
   }
 
