@@ -70,6 +70,29 @@ class QuranRepository {
     return _cache[number] = verses;
   }
 
+  /// Returns the juz containing a valid surah/ayah reference, if any.
+  /// Juz boundaries come from the verified offline metadata.
+  int? juzForVerse(int surahNumber, int verseNumber) {
+    if (surahNumber < 1 ||
+        surahNumber > chapters.length ||
+        verseNumber < 1 ||
+        verseNumber > chapters[surahNumber - 1].count ||
+        juz.length != 30) {
+      return null;
+    }
+    var result = 1;
+    for (var i = 0; i < juz.length; i++) {
+      final boundary = juz[i];
+      if (surahNumber > boundary[0] ||
+          (surahNumber == boundary[0] && verseNumber >= boundary[1])) {
+        result = i + 1;
+      } else {
+        break;
+      }
+    }
+    return result;
+  }
+
   Future<List<Verse>> juzVerses(int number) async {
     final start = juz[number - 1], end = number == 30 ? [115, 1] : juz[number];
     final result = <Verse>[];
