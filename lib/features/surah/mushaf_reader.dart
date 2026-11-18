@@ -140,6 +140,7 @@ class _MushafReaderState extends State<MushafReader> {
                   session.store.map('bookmarks').containsKey(verse.ref);
               final colors = Theme.of(sheetContext).colorScheme;
               return ListView(
+                key: const Key('mushaf-verse-detail-list'),
                 padding: const EdgeInsets.fromLTRB(20, 2, 20, 28),
                 children: [
                   Row(
