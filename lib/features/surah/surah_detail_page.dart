@@ -374,7 +374,9 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     );
   }
   Widget _verseTile(BuildContext c, Session s, Verse v, int i) {
-    return ListenableBuilder(
+    return KeyedSubtree(
+      key: ValueKey('verse-${v.ref}'),
+      child: ListenableBuilder(
       listenable: s.player,
       builder: (c, _) => Container(
         key: _verseKeys[i],
@@ -665,6 +667,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                           ],
 
         ),
+      ),
       ),
     );
   }
