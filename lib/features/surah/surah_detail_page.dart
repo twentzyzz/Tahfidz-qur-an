@@ -128,6 +128,50 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     _savePosition(s, verses, index);
   }
 
+  Widget _juzToolbar(BuildContext c, Session s, List<Verse> verses) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+      child: Wrap(
+        key: const Key('juz-compact-toolbar'),
+        spacing: 9,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          OutlinedButton.icon(
+            onPressed: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(
+                builder: (_) => const QariPage(),
+              ),
+            ),
+            icon: const Icon(Icons.headphones_rounded, size: 18),
+            label: Text(c.t('Pilih Qari', 'Choose reciter')),
+          ),
+          DropdownButton<int>(
+            value: repeat,
+            underline: const SizedBox.shrink(),
+            items: [1, 3, 5, 10]
+                .map((n) => DropdownMenuItem(
+                      value: n,
+                      child: Text('$n ×'),
+                    ))
+                .toList(),
+            onChanged: (n) => setState(() => repeat = n!),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: () => s.player.play(
+              verses,
+              s.store.get('qari', '05'),
+              repeat,
+            ),
+            icon: const Icon(Icons.play_arrow_rounded, size: 19),
+            label: Text(c.t('Putar Juz', 'Play juz')),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext c) {
     final s = Session.of(c);
@@ -160,6 +204,9 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
           }
           return Column(
             children: [
+              if (widget.juz != null)
+                _juzToolbar(c, s, verses)
+              else
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Container(
@@ -387,7 +434,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     return KeyedSubtree(
       key: ValueKey('verse-${v.ref}'),
       child: ListenableBuilder(
-      listenable: s.player,
+      listenable: Listenable.merge([s.player, s.store]),
       builder: (c, _) => Container(
         key: _verseKeys[i],
         padding: EdgeInsets.fromLTRB(
