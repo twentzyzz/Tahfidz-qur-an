@@ -38,7 +38,7 @@ void main() {
       scrollable: find.descendant(
         of: find.byType(CustomScrollView),
         matching: find.byType(Scrollable),
-      ),
+      ).first,
       maxScrolls: 20,
     );
     await tester.pumpAndSettle();
