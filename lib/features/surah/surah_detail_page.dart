@@ -597,6 +597,9 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                             ],
                             SizedBox(height: widget.juz != null ? 14 : 22),
                             Container(
+                              key: widget.juz != null
+                                  ? ValueKey('juz-arabic-${v.ref}')
+                                  : null,
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(
                                 horizontal: widget.juz != null ? 0 : 22,
