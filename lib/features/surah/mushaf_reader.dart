@@ -190,7 +190,10 @@ class _MushafReaderState extends State<MushafReader> {
     final store = Session.of(context).store;
     perform(
       context,
-      () => store.set('last', {'surah': verse.surah, 'verse': verse.number}),
+      () => store.rememberReadingPosition(
+        surah: verse.surah,
+        verse: verse.number,
+      ),
     );
   }
 
@@ -339,10 +342,10 @@ class _MushafReaderState extends State<MushafReader> {
                       TextButton(
                         onPressed: () => perform(
                           sheetContext,
-                          () => session.store.set('last', {
-                            'surah': verse.surah,
-                            'verse': verse.number,
-                          }),
+                          () => session.store.rememberReadingPosition(
+                            surah: verse.surah,
+                            verse: verse.number,
+                          ),
                         ),
                         child: Text(
                           sheetContext.t('Bacaan terakhir', 'Last read'),
