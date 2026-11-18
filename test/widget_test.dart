@@ -58,14 +58,15 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.byTooltip('Detail ayat'));
       await t.pumpAndSettle();
-      await t.scrollUntilVisible(
-        find.text('Sudah hafal'),
-        150,
-        scrollable: find.byType(Scrollable).last,
+      await Scrollable.ensureVisible(
+        t.element(find.text('Sudah hafal')),
+        alignment: .5,
+        duration: Duration.zero,
       );
+      await t.pumpAndSettle();
       await t.tap(find.text('Sudah hafal'));
       await t.pumpAndSettle();
-      await t.tap(find.byTooltip('Tutup detail ayat'));
+      await t.pageBack();
       await t.pumpAndSettle();
       await t.tap(find.byType(BackButton));
       await t.pumpAndSettle();
