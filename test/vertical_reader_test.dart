@@ -35,7 +35,10 @@ void main() {
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('verse-1:3')),
       350,
-      scrollable: find.byType(Scrollable).last,
+      scrollable: find.descendant(
+        of: find.byType(CustomScrollView),
+        matching: find.byType(Scrollable),
+      ),
       maxScrolls: 20,
     );
     await tester.pumpAndSettle();
