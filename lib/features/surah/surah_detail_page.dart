@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import '../../core/theme/app_typography.dart';
+import '../../core/constants/app_colors.dart';
 
 import 'package:flutter/material.dart';
 
@@ -389,19 +390,134 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
       listenable: s.player,
       builder: (c, _) => Container(
         key: _verseKeys[i],
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        padding: EdgeInsets.fromLTRB(
+          widget.juz != null ? 18 : 20,
+          widget.juz != null ? 14 : 20,
+          widget.juz != null ? 18 : 20,
+          widget.juz != null ? 18 : 32,
+        ),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
+            bottom: BorderSide(
+              color: Theme.of(c).colorScheme.outlineVariant,
+              width: .75,
+            ),
           ),
         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              '${s.quran.chapters[v.surah - 1].name} • ${v.number}',
-                              style: Theme.of(c).textTheme.titleMedium,
-                            ),
+                            if (widget.juz != null && (v.number == 1 || i == 0)) ...[
+                              Container(
+                                key: ValueKey('juz-chapter-${v.surah}'),
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(c).brightness == Brightness.dark
+                                      ? Theme.of(c).colorScheme.primaryContainer
+                                          .withValues(alpha: .28)
+                                      : const Color(0xFFF8F1E0),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Theme.of(c).brightness == Brightness.dark
+                                        ? Theme.of(c).colorScheme.outlineVariant
+                                        : AppColors.goldBorder,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      s.quran.chapters[v.surah - 1].name,
+                                      style: Theme.of(c).textTheme.titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: Theme.of(c).colorScheme.primary,
+                                          ),
+                                    ),
+                                    Text(
+                                      s.quran.chapters[v.surah - 1].arabic,
+                                      textDirection: TextDirection.rtl,
+                                      style: AppTypography.arabic.copyWith(
+                                        fontSize: 22,
+                                        height: 1.4,
+                                        color: Theme.of(c).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                            ],
+                            if (widget.juz != null)
+                              Row(
+                                children: [
+                                  SizedBox.square(
+                                    dimension: 45,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Transform.rotate(
+                                          angle: .7853981634,
+                                          child: Container(
+                                            width: 31,
+                                            height: 31,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(c).brightness ==
+                                                      Brightness.dark
+                                                  ? Theme.of(c)
+                                                      .colorScheme
+                                                      .primaryContainer
+                                                      .withValues(alpha: .35)
+                                                  : const Color(0xFFFFF7E8),
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: Theme.of(c).brightness ==
+                                                        Brightness.dark
+                                                    ? AppColors.goldLight
+                                                    : AppColors.gold,
+                                                width: 1.2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '${v.number}',
+                                          style: Theme.of(c)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w800,
+                                                color: Theme.of(c)
+                                                    .colorScheme.onSurface,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 9),
+                                  Expanded(
+                                    child: Text(
+                                      '${s.quran.chapters[v.surah - 1].name} • ${v.number}',
+                                      style: Theme.of(c)
+                                          .textTheme
+                                          .labelMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(c)
+                                                .colorScheme.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              Text(
+                                '${s.quran.chapters[v.surah - 1].name} • ${v.number}',
+                                style: Theme.of(c).textTheme.titleMedium,
+                              ),
                             if (s.player.current?.ref == v.ref)
                               Text(
                                 c.t('Audio ayat ini', 'Audio for this verse'),
@@ -409,35 +525,39 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                   color: Theme.of(c).colorScheme.primary,
                                 ),
                               ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
-                                    style: Theme.of(c).textTheme.bodySmall,
-                                  ),
-                                ),
-                                Flexible(
-                                  child: Text(
-                                    s.quran.chapters[v.surah - 1].arabic,
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.end,
-                                    style: AppTypography.arabic.copyWith(
-                                      fontSize: 22,
+                            if (widget.juz == null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${s.quran.chapters[v.surah - 1].count} ${c.t('ayat', 'verses')}',
+                                      style: Theme.of(c).textTheme.bodySmall,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 22),
+                                  Flexible(
+                                    child: Text(
+                                      s.quran.chapters[v.surah - 1].arabic,
+                                      textDirection: TextDirection.rtl,
+                                      textAlign: TextAlign.end,
+                                      style: AppTypography.arabic.copyWith(
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            SizedBox(height: widget.juz != null ? 14 : 22),
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 22,
-                                vertical: 34,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: widget.juz != null ? 0 : 22,
+                                vertical: widget.juz != null ? 4 : 34,
                               ),
-                              decoration: BoxDecoration(
+                              decoration: widget.juz != null
+                                  ? null
+                                  : BoxDecoration(
                                 color: Theme.of(c).brightness == Brightness.dark
                                     ? Theme.of(c).colorScheme.surface
                                     : const Color(0xFFFFF9EC),
@@ -466,7 +586,7 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                         fontSize: s.store
                                             .get<num>('arabicSize', 32)
                                             .toDouble(),
-                                        height: 2.35,
+                                        height: widget.juz != null ? 2.15 : 2.35,
                                       ),
                                     )
                                   : Padding(
@@ -482,20 +602,42 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                       ),
                                     ),
                             ),
-                            const SizedBox(height: 26),
-                            Row(
-                              children: [
-                                Icon(Icons.translate_rounded,
-                                  color: Theme.of(c).colorScheme.primary,
-                                  size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  c.t('Makna ayat', 'Verse meaning'),
-                                  style: Theme.of(c).textTheme.titleSmall
-                                      ?.copyWith(fontWeight: FontWeight.w800),
-                                ),
-                              ],
-                            ),
+                            SizedBox(height: widget.juz != null ? 18 : 26),
+                            if (widget.juz != null)
+                              Row(
+                                children: [
+                                  Container(
+                                    height: 2,
+                                    width: 24,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.gold,
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Divider(
+                                      height: 1,
+                                      thickness: .7,
+                                      color: Theme.of(c).colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Icon(Icons.translate_rounded,
+                                    color: Theme.of(c).colorScheme.primary,
+                                    size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    c.t('Makna ayat', 'Verse meaning'),
+                                    style: Theme.of(c).textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
                             const SizedBox(height: 12),
                             SelectableText(
                               v.translation,
