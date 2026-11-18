@@ -55,16 +55,17 @@ void main() {
     await tester.tap(find.byTooltip('Detail ayat'));
     await tester.pumpAndSettle();
     expect(find.text('Makna ayat'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Sudah hafal'),
-      180,
-      scrollable: find.byType(Scrollable).last,
+    await Scrollable.ensureVisible(
+      tester.element(find.text('Sudah hafal')),
+      alignment: .5,
+      duration: Duration.zero,
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Sudah hafal'));
     await tester.pumpAndSettle();
     expect(session.store.map('progress')['1:2'], 'done');
 
-    await tester.tap(find.byTooltip('Tutup detail ayat'));
+    await tester.pageBack();
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
@@ -73,15 +74,13 @@ void main() {
   testWidgets('Juz remains an entirely vertical ayah list', (tester) async {
     await boot(tester);
     final root = tester.element(find.byType(Scaffold).first);
+    final session = Session.of(root);
+    await tester.runAsync(() => session.quran.juzVerses(1));
     Navigator.of(root).push(
       MaterialPageRoute<void>(
         builder: (_) => const SurahDetailPage(juz: 1),
       ),
     );
-    await tester.pumpAndSettle();
-    await tester.runAsync(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    });
     await tester.pumpAndSettle();
 
     expect(find.byType(MushafReader), findsNothing);
