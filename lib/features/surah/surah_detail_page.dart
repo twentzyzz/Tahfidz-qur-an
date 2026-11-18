@@ -30,9 +30,15 @@ class SurahDetailPage extends StatefulWidget {
 
 class _SurahDetailPageState extends State<SurahDetailPage> {
   Future<List<Verse>>? future;
-  PageController? pages;
   int current = 0, start = 1, end = 1, repeat = 1;
+  int _anchor = 0;
   bool hidden = false;
+  bool _visibilityCheckQueued = false;
+  bool _persistOnNextCheck = false;
+  int? _lastSavedIndex;
+  GlobalKey _readerCenterKey = GlobalKey();
+  final GlobalKey _readerViewportKey = GlobalKey();
+  List<GlobalKey> _verseKeys = [];
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -45,9 +51,11 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
         ? await q.juzVerses(widget.juz!)
         : await q.surah(widget.number!);
     current = (widget.initialVerse - 1).clamp(0, data.length - 1);
+    _anchor = current;
+    _readerCenterKey = GlobalKey();
+    _verseKeys = List.generate(data.length, (_) => GlobalKey());
+    _lastSavedIndex = widget.memorize ? current : null;
     end = data.length;
-    pages?.dispose();
-    pages = PageController(initialPage: current);
     if (mounted && widget.memorize) {
       await Session.of(context).store.set('lastMemorization', {
         'surah': data[current].surah,
@@ -57,10 +65,65 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     return data;
   }
 
-  @override
-  void dispose() {
-    pages?.dispose();
-    super.dispose();
+  void _savePosition(Session s, List<Verse> verses, int index) {
+    if (_lastSavedIndex == index || !mounted) return;
+    _lastSavedIndex = index;
+    final verse = verses[index];
+    perform(
+      context,
+      () => s.store.set(
+        widget.memorize ? 'lastMemorization' : 'last',
+        {'surah': verse.surah, 'verse': verse.number},
+      ),
+    );
+  }
+
+  // A sliver list builds only visible ayat. Read the top-most visible item
+  // after layout so the bookmark is updated when vertical scrolling stops.
+  void _queueVisibleVerseUpdate(
+    Session s,
+    List<Verse> verses, {
+    required bool persist,
+  }) {
+    _persistOnNextCheck |= persist;
+    if (_visibilityCheckQueued) return;
+    _visibilityCheckQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _visibilityCheckQueued = false;
+      final save = _persistOnNextCheck;
+      _persistOnNextCheck = false;
+      if (!mounted) return;
+      final viewport = _readerViewportKey.currentContext?.findRenderObject();
+      if (viewport is! RenderBox || !viewport.hasSize) return;
+      final viewportTop = viewport.localToGlobal(Offset.zero).dy;
+      int? visible;
+      var nearest = double.infinity;
+      for (var i = 0; i < _verseKeys.length; i++) {
+        final box = _verseKeys[i].currentContext?.findRenderObject();
+        if (box is! RenderBox || !box.attached || !box.hasSize) continue;
+        final top = box.localToGlobal(Offset.zero).dy - viewportTop;
+        final bottom = top + box.size.height;
+        if (bottom <= 0 || top >= viewport.size.height) continue;
+        final distance = top <= 10 && bottom > 10 ? 0.0 : top.abs();
+        if (distance < nearest) {
+          nearest = distance;
+          visible = i;
+        }
+      }
+      if (visible == null) return;
+      if (current != visible) setState(() => current = visible!);
+      if (save) _savePosition(s, verses, visible);
+    });
+  }
+
+  void _jumpToVerse(Session s, List<Verse> verses, int index) {
+    if (index < 0 || index >= verses.length) return;
+    setState(() {
+      current = index;
+      _anchor = index;
+      _readerCenterKey = GlobalKey();
+    });
+    _savePosition(s, verses, index);
   }
 
   @override
@@ -229,25 +292,98 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                   ),
                 ),
               Expanded(
-                child: PageView.builder(
-                  controller: pages,
-                  itemCount: verses.length,
-                  onPageChanged: (i) {
-                    setState(() => current = i);
-                    perform(
-                      c,
-                      () => s.store.set(
-                        widget.memorize ? 'lastMemorization' : 'last',
-                        {'surah': verses[i].surah, 'verse': verses[i].number},
+                child: SizedBox.expand(
+                  key: _readerViewportKey,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification.depth != 0) return false;
+                      if (notification is ScrollUpdateNotification ||
+                          notification is ScrollEndNotification) {
+                        _queueVisibleVerseUpdate(
+                          s,
+                          verses,
+                          persist: notification is ScrollEndNotification,
+                        );
+                      }
+                      return false;
+                    },
+                    child: CustomScrollView(
+                      key: ValueKey('vertical-reader-$_anchor'),
+                      center: _readerCenterKey,
+                      slivers: [
+                        SliverList.builder(
+                          itemCount: _anchor,
+                          itemBuilder: (context, index) {
+                            final i = _anchor - index - 1;
+                            return _verseTile(context, s, verses[i], i);
+                          },
+                        ),
+                        SliverList.builder(
+                          key: _readerCenterKey,
+                          itemCount: verses.length - _anchor,
+                          itemBuilder: (context, index) {
+                            final i = _anchor + index;
+                            return _verseTile(context, s, verses[i], i);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(c).colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: Theme.of(c).colorScheme.outlineVariant,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton.filledTonal(
+                    tooltip: c.t('Ayat sebelumnya', 'Previous verse'),
+                    onPressed: current == 0
+                        ? null
+                        : () => _jumpToVerse(s, verses, current - 1),
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                    Text(
+                      '${current + 1} / ${verses.length}',
+                      style: Theme.of(c).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
                       ),
-                    );
-                  },
-                  itemBuilder: (c, i) {
-                    final v = verses[i];
-                    return ListenableBuilder(
-                      listenable: s.player,
-                      builder: (c, _) => SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                    ),
+                    IconButton.filledTonal(
+                    tooltip: c.t('Ayat berikutnya', 'Next verse'),
+                    onPressed: current == verses.length - 1
+                        ? null
+                        : () => _jumpToVerse(s, verses, current + 1),
+                    icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+  Widget _verseTile(BuildContext c, Session s, Verse v, int i) {
+    return ListenableBuilder(
+      listenable: s.player,
+      builder: (c, _) => Container(
+        key: _verseKeys[i],
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Theme.of(c).colorScheme.outlineVariant),
+          ),
+        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -527,58 +663,10 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                               },
                             ),
                           ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Theme.of(c).colorScheme.surface,
-                  border: Border(
-                    top: BorderSide(
-                      color: Theme.of(c).colorScheme.outlineVariant,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton.filledTonal(
-                    tooltip: c.t('Ayat sebelumnya', 'Previous verse'),
-                    onPressed: current == 0
-                        ? null
-                        : () => pages!.previousPage(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOut,
-                          ),
-                    icon: const Icon(Icons.chevron_left),
-                  ),
-                    Text(
-                      '${current + 1} / ${verses.length}',
-                      style: Theme.of(c).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    IconButton.filledTonal(
-                    tooltip: c.t('Ayat berikutnya', 'Next verse'),
-                    onPressed: current == verses.length - 1
-                        ? null
-                        : () => pages!.nextPage(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOut,
-                          ),
-                    icon: const Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+
+        ),
       ),
     );
   }
+
 }
