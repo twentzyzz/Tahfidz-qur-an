@@ -12,6 +12,7 @@ import '../../widgets/mini_player.dart';
 import '../qari/qari_page.dart';
 import '../tahfidz/practice_page.dart';
 import '../offline_recitation/offline_recitation_page.dart';
+import 'mushaf_reader.dart';
 
 class SurahDetailPage extends StatefulWidget {
   const SurahDetailPage({
@@ -148,6 +149,14 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
             return const Center(child: CircularProgressIndicator());
           }
           final verses = snapshot.data!;
+          // The Al-Qur'an tab reads like a multi-ayah mushaf leaf.
+          // Juz and memorization keep the continuous vertical ayah reader.
+          if (widget.juz == null && !widget.memorize) {
+            return MushafReader(
+              verses: verses,
+              initialVerse: widget.initialVerse,
+            );
+          }
           return Column(
             children: [
               Padding(
