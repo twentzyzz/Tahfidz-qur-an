@@ -5,6 +5,7 @@ import '../../core/theme/app_typography.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/quran_repository.dart';
 import 'surah_detail_page.dart';
+import 'verse_search_page.dart';
 
 class ReadingCatalog extends StatefulWidget {
   const ReadingCatalog({super.key});
@@ -61,7 +62,19 @@ class _ReadingCatalogState extends State<ReadingCatalog> {
                     hintText: context.t('Nama atau nomor', 'Name or number'),
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: search.text.isEmpty
-                        ? null
+                        ? IconButton(
+                            key: const Key('open-verse-search'),
+                            tooltip: context.t(
+                              'Cari isi ayat (Arab / Indonesia)',
+                              'Search verses (Arabic / Indonesian)',
+                            ),
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const VerseSearchPage(),
+                              ),
+                            ),
+                            icon: const Icon(Icons.manage_search_rounded),
+                          )
                         : IconButton(
                             tooltip: context.t('Hapus pencarian', 'Clear search'),
                             onPressed: clearSearch,
