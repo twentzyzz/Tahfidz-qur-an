@@ -49,6 +49,32 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> map(String key) =>
       Map<String, dynamic>.from(data[key] as Map? ?? {});
+
+  /// Keep legacy last-ayah data and its reader mode in one durable write.
+  /// Existing installations without lastReader continue in Al-Qur'an mode.
+  Future<void> rememberReadingPosition({
+    required int surah,
+    required int verse,
+    int? juz,
+  }) {
+    if (surah < 1 || surah > 114 || verse < 1) {
+      throw RangeError('Invalid reading reference: $surah:$verse');
+    }
+    if (juz != null && (juz < 1 || juz > 30)) {
+      throw RangeError.range(juz, 1, 30, 'juz');
+    }
+    return update((next) {
+      next['last'] = {'surah': surah, 'verse': verse};
+      final reader = <String, dynamic>{
+        'mode': juz == null ? 'quran' : 'juz',
+        'surah': surah,
+        'verse': verse,
+      };
+      if (juz != null) reader['juz'] = juz;
+      next['lastReader'] = reader;
+    });
+  }
+
   Future<void> bookmark(String ref) => update((next) {
     final bookmarks = Map<String, dynamic>.from(
       next['bookmarks'] as Map? ?? {},

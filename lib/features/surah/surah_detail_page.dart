@@ -21,9 +21,12 @@ class SurahDetailPage extends StatefulWidget {
     this.number,
     this.juz,
     this.initialVerse = 1,
+    this.resumeSurah,
     this.memorize = false,
   });
   final int? number, juz;
+  /// Surah number paired with initialVerse when resuming inside a juz.
+  final int? resumeSurah;
   final int initialVerse;
   final bool memorize;
   @override
@@ -52,7 +55,16 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     final data = widget.juz != null
         ? await q.juzVerses(widget.juz!)
         : await q.surah(widget.number!);
-    current = (widget.initialVerse - 1).clamp(0, data.length - 1);
+    if (widget.juz != null && widget.resumeSurah != null) {
+      final match = data.indexWhere(
+        (verse) =>
+            verse.surah == widget.resumeSurah &&
+            verse.number == widget.initialVerse,
+      );
+      current = match >= 0 ? match : 0;
+    } else {
+      current = (widget.initialVerse - 1).clamp(0, data.length - 1);
+    }
     _anchor = current;
     _readerCenterKey = GlobalKey();
     _verseKeys = List.generate(data.length, (_) => GlobalKey());
@@ -63,6 +75,14 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
         'surah': data[current].surah,
         'verse': data[current].number,
       });
+    } else if (mounted) {
+      // Opening a reader also establishes the correct mode for Resume,
+      // even when the user closes the page without scrolling.
+      await Session.of(context).store.rememberReadingPosition(
+        surah: data[current].surah,
+        verse: data[current].number,
+        juz: widget.juz,
+      );
     }
     return data;
   }
@@ -73,10 +93,16 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
     final verse = verses[index];
     perform(
       context,
-      () => s.store.set(
-        widget.memorize ? 'lastMemorization' : 'last',
-        {'surah': verse.surah, 'verse': verse.number},
-      ),
+      () => widget.memorize
+          ? s.store.set('lastMemorization', {
+              'surah': verse.surah,
+              'verse': verse.number,
+            })
+          : s.store.rememberReadingPosition(
+              surah: verse.surah,
+              verse: verse.number,
+              juz: widget.juz,
+            ),
     );
   }
 
@@ -760,10 +786,11 @@ class _SurahDetailPageState extends State<SurahDetailPage> {
                                 TextButton(
                                   onPressed: () => perform(
                                     c,
-                                    () => s.store.set('last', {
-                                      'surah': v.surah,
-                                      'verse': v.number,
-                                    }),
+                                    () => s.store.rememberReadingPosition(
+                                      surah: v.surah,
+                                      verse: v.number,
+                                      juz: widget.juz,
+                                    ),
                                   ),
                                   child: Text(
                                     c.t('Bacaan terakhir', 'Last read'),

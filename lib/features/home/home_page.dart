@@ -129,6 +129,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   memorize: true,
                 ),
               ),
+              onContinueReading: (surah, verse, juz) => open(
+                juz == null
+                    ? SurahDetailPage(number: surah, initialVerse: verse)
+                    : SurahDetailPage(
+                        juz: juz,
+                        resumeSurah: surah,
+                        initialVerse: verse,
+                      ),
+              ),
               onDetail: (surah, verse) =>
                   open(SurahDetailPage(number: surah, initialVerse: verse)),
             ),
@@ -166,9 +175,11 @@ class _Dashboard extends StatelessWidget {
     required this.onPrayer,
     required this.onDetail,
     required this.onResume,
+    required this.onContinueReading,
   });
   final VoidCallback onSurahs, onJuz, onMemorize, onProgress, onQari, onPrayer;
   final void Function(int, int) onDetail, onResume;
+  final void Function(int, int, int?) onContinueReading;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +191,25 @@ class _Dashboard extends StatelessWidget {
         .where((v) => v == 'done')
         .length;
     final last = s.store.map('last');
+    final lastReader = s.store.map('lastReader');
+    final lastSurah = last['surah'];
+    final lastVerse = last['verse'];
+    final hasLastReading = lastSurah is int &&
+        lastSurah >= 1 &&
+        lastSurah <= s.quran.chapters.length &&
+        lastVerse is int &&
+        lastVerse >= 1 &&
+        lastVerse <= s.quran.chapters[lastSurah - 1].count;
+    // Old backups without a saved mode safely resume in Al-Qur'an.
+    // Ignore mismatched/stale mode metadata if the bookmark changed.
+    final resumeJuz = hasLastReading &&
+            lastReader['mode'] == 'juz' &&
+            lastReader['surah'] == lastSurah &&
+            lastReader['verse'] == lastVerse &&
+            lastReader['juz'] is int &&
+            s.quran.juzForVerse(lastSurah, lastVerse) == lastReader['juz']
+        ? lastReader['juz'] as int
+        : null;
     final memo = s.store.map('lastMemorization');
     final hasMemo = memo['surah'] is int && memo['verse'] is int;
     final chapter = hasMemo
@@ -436,7 +466,7 @@ class _Dashboard extends StatelessWidget {
                 ],
               ),
             ),
-            if (last['surah'] is int && last['verse'] is int) ...[
+            if (hasLastReading) ...[
               const SizedBox(height: 16),
               Card(
                 margin: EdgeInsets.zero,
@@ -463,10 +493,15 @@ class _Dashboard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                   subtitle: Text(
-                    '${s.quran.chapters[(last['surah'] as int) - 1].name} • ${context.t('Ayat', 'Verse')} ${last['verse']}',
+                    '${resumeJuz == null ? context.t('Al-Qur’an', 'Quran') : 'Juz $resumeJuz'}'
+                    ' • ${s.quran.chapters[(last['surah'] as int) - 1].name}'
+                    ' • ${context.t('Ayat', 'Verse')} ${last['verse']}',
                   ),
-                  onTap: () =>
-                      onDetail(last['surah'] as int, last['verse'] as int),
+                  onTap: () => onContinueReading(
+                    last['surah'] as int,
+                    last['verse'] as int,
+                    resumeJuz,
+                  ),
                 ),
               ),
             ],

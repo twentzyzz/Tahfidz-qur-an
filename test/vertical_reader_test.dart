@@ -50,6 +50,8 @@ void main() {
     final last = session.store.map('last');
     expect(last['surah'], 1);
     expect(last['verse'], greaterThanOrEqualTo(2));
+    expect(session.store.map('lastReader')['mode'], 'juz');
+    expect(session.store.map('lastReader')['juz'], 1);
     await tester.pumpWidget(const SizedBox());
   });
 
