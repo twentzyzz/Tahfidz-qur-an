@@ -5,6 +5,7 @@ import '../../core/theme/app_typography.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/quran_repository.dart';
 import 'surah_detail_page.dart';
+import 'verse_search_page.dart';
 
 class ReadingCatalog extends StatefulWidget {
   const ReadingCatalog({super.key});
@@ -69,6 +70,23 @@ class _ReadingCatalogState extends State<ReadingCatalog> {
                           ),
                   ),
                   onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('open-verse-search'),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const VerseSearchPage(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.manage_search_rounded),
+                  label: Text(
+                    context.t(
+                      'Cari ayat Arab & Indonesia',
+                      'Search Arabic & Indonesian verses',
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
