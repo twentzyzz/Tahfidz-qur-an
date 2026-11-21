@@ -48,23 +48,29 @@ void main() {
       await t.pumpAndSettle();
       expect(
         find.byWidgetPredicate(
-          (w) => w is SelectableText && (w.data ?? '').contains('بِسْمِ'),
+          (w) => w is SelectableText &&
+              ((w.data ?? w.textSpan?.toPlainText() ?? '')
+                  .contains('بِسْمِ')),
         ),
         findsOneWidget,
       );
-      await t.scrollUntilVisible(
-        find.byTooltip('Bookmark'),
-        150,
-        scrollable: find.byType(Scrollable).last,
-      );
       await t.tap(find.byTooltip('Bookmark'));
+      await t.pumpAndSettle();
+      await t.tap(find.byTooltip('Detail ayat'));
       await t.pumpAndSettle();
       await t.scrollUntilVisible(
         find.text('Sudah hafal'),
-        150,
-        scrollable: find.byType(Scrollable).last,
+        180,
+        scrollable: find.descendant(
+          of: find.byKey(const Key('mushaf-verse-detail-list')),
+          matching: find.byType(Scrollable),
+        ).first,
+        maxScrolls: 20,
       );
+      await t.pumpAndSettle();
       await t.tap(find.text('Sudah hafal'));
+      await t.pumpAndSettle();
+      Navigator.of(t.element(find.byType(BottomSheet))).pop();
       await t.pumpAndSettle();
       await t.tap(find.byType(BackButton));
       await t.pumpAndSettle();
@@ -124,7 +130,9 @@ void main() {
     });
     await t.pumpAndSettle();
     final arabic = find.byWidgetPredicate(
-      (w) => w is SelectableText && (w.data ?? '').contains('بِسْمِ'),
+      (w) => w is SelectableText &&
+              ((w.data ?? w.textSpan?.toPlainText() ?? '')
+                  .contains('بِسْمِ')),
     );
     expect(arabic, findsOneWidget);
     await t.tap(find.byTooltip('Sembunyikan / tampilkan Arab'));
