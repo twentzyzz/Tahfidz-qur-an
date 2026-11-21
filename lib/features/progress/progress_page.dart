@@ -1,6 +1,7 @@
 import '../../widgets/weekly_progress.dart';
 import '../../services/practice_store.dart';
 import 'practice_calendar.dart';
+import 'detailed_stats_page.dart';
 import '../surah/surah_detail_page.dart';
 
 import 'package:flutter/material.dart';
@@ -74,6 +75,21 @@ class ProgressPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          key: const Key('open-detailed-stats'),
+          onPressed: () => Navigator.push(
+            c,
+            MaterialPageRoute<void>(
+              builder: (_) => const DetailedStatsPage(),
+            ),
+          ),
+          icon: const Icon(Icons.bar_chart_rounded),
+          label: Text(c.t('Statistik Hafalan Detail', 'Detailed memorization statistics')),
         ),
       ),
       const SizedBox(height: 20),
