@@ -51,15 +51,18 @@ void main() {
     await tester.tap(find.byKey(const Key('open-verse-search')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('verse-search-input')), findsOneWidget);
+    // Prepare the full offline index in the real async zone first. Loading
+    // 114 assets from a fake-async debounce callback can otherwise deadlock
+    // widget tests while waiting for file bundle continuations.
+    final root = tester.element(find.byType(Scaffold).first);
+    await tester.runAsync(
+      () => Session.of(root).quran.searchVerses('segala puji'),
+    );
     await tester.enterText(
       find.byKey(const Key('verse-search-input')),
       'segala puji',
     );
     await tester.pump(const Duration(milliseconds: 350));
-    final root = tester.element(find.byType(Scaffold).first);
-    await tester.runAsync(
-      () => Session.of(root).quran.searchVerses('segala puji'),
-    );
     await tester.pumpAndSettle();
 
     final first = find.byKey(const ValueKey('verse-result-1:2'));
