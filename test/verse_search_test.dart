@@ -63,9 +63,15 @@ void main() {
       'segala puji',
     );
     await tester.pump(const Duration(milliseconds: 350));
-    await tester.pumpAndSettle();
-
     final first = find.byKey(const ValueKey('verse-result-1:2'));
+    // The search callback awaits a previously prepared Future. Give real
+    // async asset/microtask continuations a turn, as in the mushaf tests.
+    for (var i = 0; i < 30 && first.evaluate().isEmpty; i++) {
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      });
+      await tester.pump(const Duration(milliseconds: 50));
+    }
     expect(first, findsOneWidget);
     await tester.tap(first);
     await tester.pumpAndSettle();
