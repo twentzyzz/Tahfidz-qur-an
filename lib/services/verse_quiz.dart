@@ -46,7 +46,7 @@ class VerseQuiz {
     final result = <VerseQuizQuestion>[];
     for (final index in promptIndices.take(count)) {
       final answer = ordered[index + 1];
-      final distractors = ordered.where((v) => v.ref != answer.ref).toList()
+      final distractors = ordered.where((v) => v.ref != answer.ref && v.ref != ordered[index].ref).toList()
         ..shuffle(rng);
       final options = <Verse>[answer, ...distractors.take(3)]..shuffle(rng);
       result.add(VerseQuizQuestion(
