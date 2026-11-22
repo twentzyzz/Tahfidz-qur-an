@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tahfidz_quran/services/app_store.dart';
+import 'package:tahfidz_quran/services/backup_service.dart';
 import 'package:tahfidz_quran/services/quiz_history_store.dart';
 
 void main() {
@@ -100,6 +101,20 @@ void main() {
     expect(store.quizAttempts, hasLength(200));
     expect(store.quizAttempts.first.id, 'attempt-201');
     expect(store.quizAttempts.last.id, 'attempt-2');
+  });
+
+  test('quiz history survives a validated backup round trip', () async {
+    await store.saveQuizAttempt(
+      id: 'backup-1', surah: 1, correct: 3, total: 5,
+      at: DateTime(2026, 11, 23),
+    );
+    final backup = BackupService.inspect(BackupService.export(store));
+    final other = AppStore(await SharedPreferences.getInstance());
+    addTearDown(other.dispose);
+    await other.update((next) => next.clear());
+    await BackupService.restore(other, backup);
+    expect(other.quizAttempts, hasLength(1));
+    expect(other.quizAttempts.single.percent, 60);
   });
 
   test('malformed legacy quiz history entries are safely ignored', () async {
