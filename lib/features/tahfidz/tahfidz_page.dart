@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../l10n/app_strings.dart';
 import 'review_page.dart';
 import 'verse_quiz_page.dart';
+import 'flashcard_page.dart';
 import '../surah/surah_list_page.dart';
 
 class TahfidzPage extends StatelessWidget {
@@ -69,6 +70,23 @@ class TahfidzPage extends StatelessWidget {
             ),
             icon: const Icon(Icons.quiz_outlined),
             label: Text(c.t('Kuis Sambung Ayat', 'Next Verse Quiz')),
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            key: const Key('open-flashcards'),
+            onPressed: () => Navigator.push(
+              c,
+              MaterialPageRoute<void>(
+                builder: (_) => const FlashcardPage(),
+              ),
+            ),
+            icon: const Icon(Icons.style_outlined),
+            label: Text(c.t('Flashcard Hafalan', 'Memorization flashcards')),
           ),
         ),
       ),
