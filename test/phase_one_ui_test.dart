@@ -103,6 +103,14 @@ void main() {
         expect(t.takeException(), isNull);
         await t.tap(find.byKey(const ValueKey('navigation-1')));
         await t.pumpAndSettle();
+        // The catalog retains its scroll offset when switching tabs. Its
+        // search header can be lazily unmounted until scrolled back to the top.
+        await t.scrollUntilVisible(
+          find.byKey(const Key('surah-search')),
+          -200,
+          scrollable: find.byType(Scrollable).first,
+          maxScrolls: 60,
+        );
         expect(find.byKey(const Key('surah-search')), findsOneWidget);
         expect(t.takeException(), isNull);
         await t.pumpWidget(const SizedBox());
