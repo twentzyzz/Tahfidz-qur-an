@@ -62,6 +62,15 @@ void main() {
         await t.pumpAndSettle();
         await t.enterText(find.byKey(const Key('surah-search')), '111');
         await t.pumpAndSettle();
+        // The extra verse-search action can push the filtered result below
+        // the viewport at 320 px with 2x text scaling. Scroll the lazy
+        // SliverList to the actual result before asserting it.
+        await t.scrollUntilVisible(
+          find.byKey(const ValueKey('surah-111')),
+          180,
+          scrollable: find.byType(Scrollable).first,
+          maxScrolls: 20,
+        );
         expect(find.text('Al-Lahab'), findsOneWidget);
         expect(t.takeException(), isNull);
         await t.enterText(find.byKey(const Key('surah-search')), 'zzzz');
@@ -73,6 +82,12 @@ void main() {
         await t.pumpAndSettle();
         await t.ensureVisible(find.byKey(const Key('surah-search')));
         await t.pumpAndSettle();
+        await t.scrollUntilVisible(
+          find.byKey(const ValueKey('surah-1')),
+          180,
+          scrollable: find.byType(Scrollable).first,
+          maxScrolls: 20,
+        );
         expect(find.text('Al-Fatihah'), findsOneWidget);
 
         await t.tap(find.byKey(const ValueKey('navigation-2')));
