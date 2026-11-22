@@ -34,7 +34,9 @@ class FlashcardRating {
     final remembered = raw['remembered'] as int;
     final date = DateTime.tryParse(raw['last'] as String);
     if (date == null || again < 0 || remembered < 0 ||
-        again > 1000000 || remembered > 1000000) return null;
+        again > 1000000 || remembered > 1000000) {
+      return null;
+    }
     return FlashcardRating(again: again, remembered: remembered, last: date);
   }
 }
