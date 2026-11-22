@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import 'app_store.dart';
+import 'quiz_history_store.dart';
+import 'flashcard_store.dart';
 
 /// Versioned, self-contained backup of the user's local Tahfidz Quran data.
 class BackupService {
@@ -67,12 +69,13 @@ class BackupService {
     for (final key in [
       'progress', 'bookmarks', 'reviews', 'dailyRecords',
       'goalHistory', 'last', 'lastMemorization', 'prayers',
+      'flashcardRatings',
     ]) {
       if (data[key] != null && data[key] is! Map) {
         throw FormatException('Data $key tidak valid.');
       }
     }
-    for (final key in ['history', 'practiceSessions']) {
+    for (final key in ['history', 'practiceSessions', 'quizHistory']) {
       if (data[key] != null && data[key] is! List) {
         throw FormatException('Data $key tidak valid.');
       }
@@ -131,6 +134,24 @@ class BackupService {
     if (data['language'] != null &&
         !['id', 'en'].contains(data['language'])) {
       throw const FormatException('Bahasa tidak valid.');
+    }
+    // Flashcard recall is separate from memorization progress. Check every
+    // entry before restoring user-provided backup data.
+    final flashcards = data['flashcardRatings'] as Map? ?? {};
+    if (flashcards.length > 6236 ||
+        flashcards.entries.any(
+          (entry) => entry.key is! String ||
+              !validFlashcardRef(entry.key as String) ||
+              FlashcardRating.tryParse(entry.value) == null,
+        )) {
+      throw const FormatException('Data flashcard tidak valid.');
+    }
+    // Backup data must never introduce malformed or duplicate quiz attempts.
+    final quiz = data['quizHistory'] as List? ?? [];
+    if (quiz.length > 200 ||
+        quiz.any((item) => QuizAttempt.tryParse(item) == null) ||
+        quiz.whereType<Map>().map((e) => e['id']).toSet().length != quiz.length) {
+      throw const FormatException('Riwayat nilai kuis tidak valid.');
     }
     final history = data['history'] as List? ?? [];
     if (history.any((e) =>
