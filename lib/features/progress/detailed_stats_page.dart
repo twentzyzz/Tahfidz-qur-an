@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/memorization_stats.dart';
+import '../../services/quiz_history_store.dart';
+import '../tahfidz/quiz_history_page.dart';
 
 class DetailedStatsPage extends StatelessWidget {
   const DetailedStatsPage({super.key});
@@ -14,6 +16,7 @@ class DetailedStatsPage extends StatelessWidget {
     final stats = MemorizationStats(Session.of(context).store);
     final counts = stats.lastSevenDays();
     final peak = math.max(1, counts.reduce(math.max));
+    final quizSummary = QuizHistorySummary(Session.of(context).store.quizAttempts);
     final ratings = stats.practiceRatings;
     final totalRatings = ratings.values.fold<int>(0, (a, b) => a + b);
     final needsPractice = stats.needsPractice;
@@ -124,6 +127,42 @@ class DetailedStatsPage extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t('Riwayat Nilai Kuis', 'Quiz score history'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          quizSummary.count == 0
+                              ? context.t('Belum ada kuis yang selesai.', 'No completed quizzes yet.')
+                              : context.t(
+                                  '${quizSummary.count} kuis • Terbaik ${quizSummary.bestPercent}% • Rata-rata ${quizSummary.averagePercent}%',
+                                  '${quizSummary.count} quizzes • Best ${quizSummary.bestPercent}% • Average ${quizSummary.averagePercent}%',
+                                ),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          key: const Key('open-quiz-history-from-stats'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const QuizHistoryPage(),
+                            ),
+                          ),
+                          icon: const Icon(Icons.history_rounded),
+                          label: Text(context.t('Lihat Riwayat Nilai', 'View quiz history')),
                         ),
                       ],
                     ),
