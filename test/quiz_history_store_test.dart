@@ -49,20 +49,20 @@ void main() {
   });
 
   test('invalid scores, surah and ids cannot be saved', () async {
-    await expectLater(
-      store.saveQuizAttempt(id: 'x', surah: 115, correct: 3, total: 5),
+    expect(
+      () => store.saveQuizAttempt(id: 'x', surah: 115, correct: 3, total: 5),
       throwsArgumentError,
     );
-    await expectLater(
-      store.saveQuizAttempt(id: 'x', surah: 1, correct: 6, total: 5),
+    expect(
+      () => store.saveQuizAttempt(id: 'x', surah: 1, correct: 6, total: 5),
       throwsArgumentError,
     );
-    await expectLater(
-      store.saveQuizAttempt(id: '', surah: 1, correct: 0, total: 5),
+    expect(
+      () => store.saveQuizAttempt(id: '', surah: 1, correct: 0, total: 5),
       throwsArgumentError,
     );
-    await expectLater(
-      store.saveQuizAttempt(id: 'x', surah: 1, correct: 0, total: 0),
+    expect(
+      () => store.saveQuizAttempt(id: 'x', surah: 1, correct: 0, total: 0),
       throwsArgumentError,
     );
     expect(store.quizAttempts, isEmpty);
