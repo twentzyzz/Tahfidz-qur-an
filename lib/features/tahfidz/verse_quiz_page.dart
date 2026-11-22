@@ -5,6 +5,8 @@ import '../../core/theme/app_typography.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/quran_repository.dart';
 import '../../services/verse_quiz.dart';
+import '../../services/quiz_history_store.dart';
+import 'quiz_history_page.dart';
 
 class VerseQuizPage extends StatefulWidget {
   const VerseQuizPage({super.key});
@@ -20,6 +22,9 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
   int _index = 0;
   int _score = 0;
   Verse? _selected;
+  bool _saving = false;
+  String? _saveError;
+  String? _attemptId;
 
   @override
   void didChangeDependencies() {
@@ -35,6 +40,9 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
       _index = 0;
       _score = 0;
       _selected = null;
+      _saving = false;
+      _saveError = null;
+      _attemptId = null;
     });
   }
 
@@ -45,6 +53,9 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
       _index = 0;
       _score = 0;
       _selected = null;
+      _saving = false;
+      _saveError = null;
+      _attemptId = null;
     });
   }
 
@@ -56,11 +67,47 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
     });
   }
 
-  void _next() {
+  Future<void> _next() async {
+    if (_selected == null || _saving) return;
+    if (_index < _questions.length - 1) {
+      setState(() {
+        _index++;
+        _selected = null;
+      });
+      return;
+    }
+
+    // A result is persisted only after the last question has an answer.
+    // Reuse the attempt ID on retry so a double tap cannot duplicate it.
+    final id = _attemptId ?? DateTime.now().microsecondsSinceEpoch.toString();
+    _attemptId = id;
     setState(() {
-      _index++;
-      _selected = null;
+      _saving = true;
+      _saveError = null;
     });
+    try {
+      await Session.of(context).store.saveQuizAttempt(
+        id: id,
+        surah: _surah,
+        correct: _score,
+        total: _questions.length,
+      );
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _index++;
+        _selected = null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _saveError = context.t(
+          'Gagal menyimpan nilai. Coba lagi.',
+          'Could not save your score. Please retry.',
+        );
+      });
+    }
   }
 
   @override
@@ -85,6 +132,16 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
                     'Practice by choosing the next verse. All choices use offline Quran text.',
                   ),
                   style: theme.textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('quiz-history-open'),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const QuizHistoryPage()),
+                  ),
+                  icon: const Icon(Icons.history_rounded),
+                  label: Text(context.t('Riwayat Nilai Kuis', 'Quiz score history')),
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<int>(
@@ -157,8 +214,8 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
                               const SizedBox(height: 12),
                               Text(
                                 context.t(
-                                  'Skor ini hanya untuk latihan; status hafalan tidak berubah.',
-                                  'Practice score only; memorization status is unchanged.',
+                                  'Nilai tersimpan di perangkat ini. Status hafalan tidak berubah.',
+                                  'Score saved on this device. Memorization status is unchanged.',
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -303,11 +360,21 @@ class _VerseQuizPageState extends State<VerseQuizPage> {
                           const SizedBox(height: 14),
                           FilledButton(
                             key: const Key('quiz-next'),
-                            onPressed: _next,
-                            child: Text(_index == _questions.length - 1
+                            onPressed: _saving ? null : _next,
+                            child: Text(_saving
+                                ? context.t('Menyimpan...', 'Saving...')
+                                : _index == _questions.length - 1
                                 ? context.t('Lihat hasil', 'See results')
                                 : context.t('Pertanyaan berikutnya', 'Next question')),
                           ),
+                          if (_saveError != null) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              _saveError!,
+                              key: const Key('quiz-save-error'),
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                          ],
                         ],
                       ],
                     );
