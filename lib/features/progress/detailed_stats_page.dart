@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../app/session.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/memorization_stats.dart';
+import '../../services/flashcard_store.dart';
+import '../tahfidz/flashcard_page.dart';
 import '../../services/quiz_history_store.dart';
 import '../tahfidz/quiz_history_page.dart';
 
@@ -17,6 +19,10 @@ class DetailedStatsPage extends StatelessWidget {
     final counts = stats.lastSevenDays();
     final peak = math.max(1, counts.reduce(math.max));
     final quizSummary = QuizHistorySummary(Session.of(context).store.quizAttempts);
+    final flashcardRatings = Session.of(context).store.flashcardRatings;
+    final flashcardAgain = flashcardRatings.values.fold<int>(0, (sum, r) => sum + r.again);
+    final flashcardRemembered = flashcardRatings.values.fold<int>(0, (sum, r) => sum + r.remembered);
+    final flashcardDifficult = flashcardRatings.values.where((r) => r.difficulty > 0).length;
     final ratings = stats.practiceRatings;
     final totalRatings = ratings.values.fold<int>(0, (a, b) => a + b);
     final needsPractice = stats.needsPractice;
@@ -163,6 +169,48 @@ class DetailedStatsPage extends StatelessWidget {
                           ),
                           icon: const Icon(Icons.history_rounded),
                           label: Text(context.t('Lihat Riwayat Nilai', 'View quiz history')),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t('Latihan Flashcard', 'Flashcard practice'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          context.t(
+                            'Ingat: $flashcardRemembered • Ulangi: $flashcardAgain • Perlu latihan: $flashcardDifficult ayat',
+                            'Remembered: $flashcardRemembered • Again: $flashcardAgain • Need practice: $flashcardDifficult verses',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          context.t(
+                            'Hasil berdasarkan penilaian diri, bukan pengukuran bacaan otomatis.',
+                            'Self-reported results, not automatic recitation assessment.',
+                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          key: const Key('open-flashcards-from-stats'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const FlashcardPage(),
+                            ),
+                          ),
+                          icon: const Icon(Icons.style_outlined),
+                          label: Text(context.t('Latihan Flashcard', 'Practice flashcards')),
                         ),
                       ],
                     ),
